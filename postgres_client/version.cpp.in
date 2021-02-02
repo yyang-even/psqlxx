@@ -1,0 +1,13 @@
+#include <postgres_client/version.hpp>
+
+namespace postgres_client {
+
+const std::string GetVersion() {
+    return "@postgres_client_VERSION@";
+}
+
+const std::string GetGitDescribe() {
+    return "@GIT_COMMIT_DESCRIPTION@";
+}
+
+}//namespace postgres_client
