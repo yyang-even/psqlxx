@@ -32,6 +32,8 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInf
 
 # ######################################################################################
 # Project Options
+option(pclient_WARNINGS_AS_ERRORS "Treat all warnings as build errors." ON)
+
 option(pclient_WANT_TESTS "Build all of the project's own tests." ON)
 option(pclient_WANT_AUTO_TESTS "Automatically run tests that have been changed." ON)
 
