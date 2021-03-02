@@ -1,5 +1,13 @@
-#include <postgres_client/version.hpp>
+#include <postgres_client/args.hpp>
 
-int main(int, char **) {
+
+using namespace postgres_client;
+
+
+int main(int argc, char **argv) {
+    auto options = BuildOptions();
+
+    HandleOptions(options, argc, argv);
+
     return EXIT_SUCCESS;
 }

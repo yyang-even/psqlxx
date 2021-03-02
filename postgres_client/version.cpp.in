@@ -3,7 +3,7 @@
 namespace postgres_client {
 
 const std::string GetVersion() {
-    return "@postgres_client_VERSION@";
+    return "@Postgres_Client_VERSION@";
 }
 
 const std::string GetGitDescribe() {
