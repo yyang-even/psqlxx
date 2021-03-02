@@ -41,6 +41,14 @@ if (pclient_WANT_TESTS)
     mark_as_advanced(BUILD_TESTING)
 
     include(GoogleTest)
+
+    # cmake-lint: disable=C0103
+
+    # Prevent GoogleTest from overriding our compiler/linker options when building with
+    # Visual Studio
+    set(gtest_force_shared_crt
+        ON
+        CACHE BOOL "" FORCE)
 endif ()
 
 option(pclient_WANT_INSTALLER "Build the project's own installer." OFF)
