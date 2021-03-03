@@ -23,6 +23,7 @@ target_link_libraries(pclient_main PRIVATE pclient::pclient)
 set_target_properties(pclient_main PROPERTIES OUTPUT_NAME postgres_client)
 
 add_test(NAME pclient.main.can_display_help COMMAND pclient_main --help)
+add_test(NAME pclient.main.can_display_version COMMAND pclient_main --version)
 
 if (pclient_WANT_INSTALLER)
     install(
