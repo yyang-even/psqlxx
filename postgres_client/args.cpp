@@ -17,17 +17,24 @@ const cxxopts::Options BuildOptions() {
 
 
 int HandleOptions(cxxopts::Options &options, int argc, char **argv) {
-    const auto result = options.parse(argc, argv);
+    try {
+        const auto result = options.parse(argc, argv);
 
-    if (result.count("help")) {
-        std::cout << options.help() << std::endl;
-        exit(EXIT_SUCCESS);
-    }
+        if (result.count("help")) {
+            std::cout << options.help() << std::endl;
+            exit(EXIT_SUCCESS);
+        }
 
-    if (result.count("version")) {
-        std::cout << "Version: " << GetVersion() << std::endl;
-        std::cout << "Git Description: " << GetGitDescribe() << std::endl;
-        exit(EXIT_SUCCESS);
+        if (result.count("version")) {
+            std::cout << "Version: " << GetVersion() << std::endl;
+            std::cout << "Git Description: " << GetGitDescribe() << std::endl;
+            exit(EXIT_SUCCESS);
+        }
+
+    } catch (const cxxopts::option_not_exists_exception &e) {
+        std::cout << "Unrecognised command-line options: " << e.what() << std::endl;
+    } catch (const cxxopts::OptionException &e) {
+        std::cerr << "Error parsing command-line options: " << e.what() << std::endl;
     }
 
     return 0;
