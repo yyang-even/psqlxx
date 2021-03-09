@@ -2,6 +2,6 @@ language: cpp
 dist: focal
 compiler: gcc
 os: linux
-#before_install: ./scripts/dependencies.sh
+before_install: ./scripts/dependencies.sh
 git:
     submodules: true

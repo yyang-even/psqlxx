@@ -14,7 +14,7 @@ add_library(pclient::pclient ALIAS pclient_pclient)
 target_link_libraries(
     pclient_pclient
     PRIVATE pclient::version
-    PUBLIC cxxopts)
+    PUBLIC cxxopts pqxx)
 target_compile_options(pclient_pclient PUBLIC ${COMPILER_WARNING_OPTIONS})
 
 add_executable(pclient_main main.cpp)
