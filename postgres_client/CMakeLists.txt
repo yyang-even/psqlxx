@@ -3,6 +3,9 @@ if (pclient_WARNINGS_AS_ERRORS)
     list(APPEND COMPILER_WARNING_OPTIONS -Werror)
 endif ()
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LibEdit REQUIRED IMPORTED_TARGET libedit>=3.1)
+
 configure_file(version.cpp.in version.cpp @ONLY)
 add_library(pclient_version STATIC ${CMAKE_CURRENT_BINARY_DIR}/version.cpp version.hpp)
 add_library(pclient::version ALIAS pclient_version)
