@@ -1,0 +1,41 @@
+#pragma once
+
+#include <memory>
+#include <string>
+
+struct editline;
+typedef editline EditLine;
+
+struct history;
+typedef history History;
+
+struct HistEvent;
+
+namespace postgres_client {
+
+struct CliOptions {
+    int history_size = 10000;
+    std::string editor = "vi";
+    std::string history_file;
+    const char *editrc_file = nullptr;
+
+    CliOptions();
+};
+
+class Cli {
+    EditLine *m_el = nullptr;
+
+    History *m_history = nullptr;
+    std::unique_ptr<HistEvent> m_ev;
+
+    const CliOptions m_options;
+
+public:
+    Cli(const char *program_path, CliOptions options);
+    ~Cli();
+
+    void Config() const;
+    void Run() const;
+};
+
+}//namespace postgres_client

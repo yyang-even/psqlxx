@@ -1,4 +1,5 @@
 #include <postgres_client/args.hpp>
+#include <postgres_client/cli.hpp>
 
 #include <pqxx/pqxx>
 
@@ -27,6 +28,9 @@ int main(int argc, char **argv) {
     HandleOptions(options, argc, argv);
 
     DoQuery();
+    Cli my_cli{argv[0], CliOptions{}};
+    my_cli.Config();
+    my_cli.Run();
 
     return EXIT_SUCCESS;
 }

@@ -3,17 +3,20 @@ if (pclient_WARNINGS_AS_ERRORS)
     list(APPEND COMPILER_WARNING_OPTIONS -Werror)
 endif ()
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LibEdit REQUIRED IMPORTED_TARGET libedit>=3.1)
+
 configure_file(version.cpp.in version.cpp @ONLY)
 add_library(pclient_version STATIC ${CMAKE_CURRENT_BINARY_DIR}/version.cpp version.hpp)
 add_library(pclient::version ALIAS pclient_version)
 set_target_properties(pclient_version PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_options(pclient_version PRIVATE ${COMPILER_WARNING_OPTIONS})
 
-add_library(pclient_pclient args.cpp args.hpp)
+add_library(pclient_pclient args.cpp args.hpp cli.cpp cli.hpp)
 add_library(pclient::pclient ALIAS pclient_pclient)
 target_link_libraries(
     pclient_pclient
-    PRIVATE pclient::version
+    PRIVATE pclient::version PkgConfig::LibEdit
     PUBLIC cxxopts pqxx)
 target_compile_options(pclient_pclient PUBLIC ${COMPILER_WARNING_OPTIONS})
 
