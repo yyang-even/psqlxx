@@ -39,9 +39,10 @@ TEST(HandleOptionsTests, UnrecognisedOptionsDonotThrow) {
 
 TEST(HandleOptionsTests, MissingValueOptionsDonotThrow) {
     const std::string OPTION_NAME = "a-test-option";
+    const std::string FULL_OPTION_NAME = "--" + OPTION_NAME;
     auto options = BuildOptions();
     options.add_options()(OPTION_NAME, "A test option", cxxopts::value<int>());
-    ArgvBuilder argv_builder{"runner", ("--" + OPTION_NAME).c_str()};
+    ArgvBuilder argv_builder{"runner", FULL_OPTION_NAME.c_str()};
 
     ASSERT_NO_THROW(HandleOptions(options, argv_builder.argc, argv_builder.argv()));
 }
