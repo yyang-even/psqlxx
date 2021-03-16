@@ -12,7 +12,8 @@ add_library(pclient::version ALIAS pclient_version)
 set_target_properties(pclient_version PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_options(pclient_version PRIVATE ${COMPILER_WARNING_OPTIONS})
 
-add_library(pclient_pclient args.cpp args.hpp cli.cpp cli.hpp)
+add_library(pclient_pclient args.cpp args.hpp cli.cpp cli.hpp sql_session.cpp
+                            sql_session.hpp)
 add_library(pclient::pclient ALIAS pclient_pclient)
 target_link_libraries(
     pclient_pclient

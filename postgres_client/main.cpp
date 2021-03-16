@@ -1,35 +1,22 @@
 #include <postgres_client/args.hpp>
 #include <postgres_client/cli.hpp>
-
-#include <pqxx/pqxx>
+#include <postgres_client/sql_session.hpp>
 
 
 using namespace postgres_client;
 
-
-void DoQuery() {
-    try {
-        pqxx::connection c;
-        pqxx::work w(c);
-
-        pqxx::row r = w.exec1("SELECT 1");
-
-        w.commit();
-
-        std::cout << "Result: " << r[0].as<int>() << std::endl;
-    } catch (std::exception const &e) {
-        std::cerr << e.what() << std::endl;
-    }
-}
 
 int main(int argc, char **argv) {
     auto options = BuildOptions();
 
     HandleOptions(options, argc, argv);
 
-    DoQuery();
+    const auto my_session = std::make_shared<SqlSession>();
     Cli my_cli{argv[0], CliOptions{}};
     my_cli.Config();
+    my_cli.RegisterLineHandler([my_session](const char *sql_cmd) {
+        my_session->RunSingle(sql_cmd);
+    });
     my_cli.Run();
 
     return EXIT_SUCCESS;

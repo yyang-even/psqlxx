@@ -22,10 +22,12 @@ inline const std::string getDefaultHistoryFile() {
 
 }
 
+
 namespace postgres_client {
 
 CliOptions::CliOptions(): history_file(getDefaultHistoryFile()) {
 }
+
 
 Cli::Cli(const char *program_path, CliOptions options) : m_ev(new HistEvent()),
     m_options(std::move(options)) {
@@ -71,8 +73,12 @@ void Cli::Run() const {
     int line_length = 0;
     while ((a_line = el_gets(m_el, &line_length)) and line_length != 0)  {
         history(m_history, m_ev.get(), H_ENTER, a_line);
-        std::cout << a_line << std::endl;
+        m_line_handler(a_line);
     }
+}
+
+void Cli::RegisterLineHandler(const LineHandlerType handler) {
+    m_line_handler = handler;
 }
 
 }//namespace postgres_client
