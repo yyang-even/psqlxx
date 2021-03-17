@@ -4,7 +4,7 @@
 
 namespace postgres_client {
 
-const cxxopts::Options BuildOptions() {
+const cxxopts::Options CreateBaseOptions() {
     cxxopts::Options options("postgres_client", "Yet another Postgres client.");
 
     options.add_options()
@@ -15,29 +15,31 @@ const cxxopts::Options BuildOptions() {
     return options;
 }
 
-
-int HandleOptions(cxxopts::Options &options, int argc, char **argv) {
+const std::optional<cxxopts::ParseResult> ParseOptions(cxxopts::Options &options,
+                                                       int argc, char **argv) {
     try {
-        const auto result = options.parse(argc, argv);
-
-        if (result.count("help")) {
-            std::cout << options.help() << std::endl;
-            exit(EXIT_SUCCESS);
-        }
-
-        if (result.count("version")) {
-            std::cout << "Version: " << GetVersion() << std::endl;
-            std::cout << "Git Description: " << GetGitDescribe() << std::endl;
-            exit(EXIT_SUCCESS);
-        }
-
+        return options.parse(argc, argv);
     } catch (const cxxopts::option_not_exists_exception &e) {
         std::cout << "Unrecognised command-line options: " << e.what() << std::endl;
     } catch (const cxxopts::OptionException &e) {
         std::cerr << "Error parsing command-line options: " << e.what() << std::endl;
     }
 
-    return 0;
+    return {};
+}
+
+void HandleBaseOptions(const cxxopts::Options &options,
+                       const cxxopts::ParseResult &parsed_options) {
+    if (parsed_options.count("help")) {
+        std::cout << options.help() << std::endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    if (parsed_options.count("version")) {
+        std::cout << "Version: " << GetVersion() << std::endl;
+        std::cout << "Git Description: " << GetGitDescribe() << std::endl;
+        exit(EXIT_SUCCESS);
+    }
 }
 
 }//namespace postgres_client
