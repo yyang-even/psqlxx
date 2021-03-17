@@ -5,8 +5,12 @@
 
 namespace postgres_client {
 
-const cxxopts::Options BuildOptions();
+const cxxopts::Options CreateBaseOptions();
 
-int HandleOptions(cxxopts::Options &options, int argc, char **argv);
+const std::optional<cxxopts::ParseResult>
+ParseOptions(cxxopts::Options &options, int argc, char **argv) noexcept;
+
+void HandleBaseOptions(const cxxopts::Options &options,
+                       const cxxopts::ParseResult &parsed_options);
 
 }//namespace postgres_client
