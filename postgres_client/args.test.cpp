@@ -29,20 +29,20 @@ public:
 };
 
 
-TEST(HandleOptionsTests, UnrecognisedOptionsDonotThrow) {
-    auto options = BuildOptions();
+TEST(ParseOptionsTests, UnrecognisedOptionsDonotThrow) {
+    auto options = CreateBaseOptions();
     ArgvBuilder argv_builder{"runner", "--no-such-option"};
 
-    ASSERT_NO_THROW(HandleOptions(options, argv_builder.argc, argv_builder.argv()));
+    ASSERT_FALSE(ParseOptions(options, argv_builder.argc, argv_builder.argv()));
 }
 
 
-TEST(HandleOptionsTests, MissingValueOptionsDonotThrow) {
+TEST(ParseOptionsTests, MissingValueOptionsDonotThrow) {
     const std::string OPTION_NAME = "a-test-option";
     const std::string FULL_OPTION_NAME = "--" + OPTION_NAME;
-    auto options = BuildOptions();
+    auto options = CreateBaseOptions();
     options.add_options()(OPTION_NAME, "A test option", cxxopts::value<int>());
     ArgvBuilder argv_builder{"runner", FULL_OPTION_NAME.c_str()};
 
-    ASSERT_NO_THROW(HandleOptions(options, argv_builder.argc, argv_builder.argv()));
+    ASSERT_NO_THROW(ParseOptions(options, argv_builder.argc, argv_builder.argv()));
 }
