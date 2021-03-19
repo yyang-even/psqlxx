@@ -6,23 +6,34 @@
 #include <pqxx/pqxx>
 
 
+namespace {
+
+const std::string GetTransactionName() {
+    return "postgres_client";
+}
+
+}
+
+
 namespace postgres_client {
 
 void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
                    const char *sql_cmd) {
     assert(connection_ptr);
 
-    try {
-        pqxx::work w(*connection_ptr);
+    pqxx::perform([connection_ptr, sql_cmd] {
+        try {
+            pqxx::work w(*connection_ptr, GetTransactionName());
 
-        auto r = w.exec1(sql_cmd);
+            auto r = w.exec(sql_cmd);
 
-        w.commit();
+            std::cout << "Result: " << r[0][0].c_str() << std::endl;
 
-        std::cout << "Result: " << r[0].c_str() << std::endl;
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-    }
+        } catch (const std::exception &e) {
+            std::cerr << e.what()
+                      << std::endl;
+        }
+    });
 }
 
 void AddPqOptions(cxxopts::Options &options) {
