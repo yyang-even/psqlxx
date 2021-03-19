@@ -12,6 +12,24 @@ const std::string GetTransactionName() {
     return "postgres_client";
 }
 
+void Print(const pqxx::result &a_result) {
+    if (a_result.columns() > 0) {
+        for (decltype(a_result.columns()) i = 0; i < a_result.columns() - 1; ++i) {
+            std::cout << a_result.column_name(i) << " | ";
+        }
+        std::cout << a_result.column_name(a_result.columns() - 1) << std::endl;
+
+        for (const auto &row : a_result) {
+            if (not row.empty()) {
+                for (auto iter = row.cbegin(); iter != std::prev(row.cend()); ++iter) {
+                    std::cout << *iter << " | ";
+                }
+                std::cout << row.back() << std::endl;
+            }
+        }
+    }
+}
+
 }
 
 
@@ -27,7 +45,7 @@ void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
 
             auto r = w.exec(sql_cmd);
 
-            std::cout << "Result: " << r[0][0].c_str() << std::endl;
+            Print(r);
 
         } catch (const std::exception &e) {
             std::cerr << e.what()
