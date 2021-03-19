@@ -44,5 +44,5 @@ TEST(ParseOptionsTests, MissingValueOptionsDonotThrow) {
     options.add_options()(OPTION_NAME, "A test option", cxxopts::value<int>());
     ArgvBuilder argv_builder{"runner", FULL_OPTION_NAME.c_str()};
 
-    ASSERT_NO_THROW(ParseOptions(options, argv_builder.argc, argv_builder.argv()));
+    ASSERT_FALSE(ParseOptions(options, argv_builder.argc, argv_builder.argv()));
 }
