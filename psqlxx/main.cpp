@@ -1,11 +1,11 @@
 #include <pqxx/pqxx>
 
-#include <postgres_client/args.hpp>
-#include <postgres_client/cli.hpp>
-#include <postgres_client/sql_session.hpp>
+#include <psqlxx/args.hpp>
+#include <psqlxx/cli.hpp>
+#include <psqlxx/sql_session.hpp>
 
 
-using namespace postgres_client;
+using namespace psqlxx;
 
 
 const cxxopts::Options BuildOptions() {

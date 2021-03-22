@@ -1,4 +1,4 @@
-#include <postgres_client/cli.hpp>
+#include <psqlxx/cli.hpp>
 
 #include <filesystem>
 #include <iostream>
@@ -23,7 +23,7 @@ inline const std::string getDefaultHistoryFile() {
 }
 
 
-namespace postgres_client {
+namespace psqlxx {
 
 CliOptions::CliOptions(): history_file(getDefaultHistoryFile()) {
 }
@@ -81,4 +81,4 @@ void Cli::RegisterLineHandler(const LineHandlerType handler) {
     m_line_handler = handler;
 }
 
-}//namespace postgres_client
+}//namespace psqlxx
