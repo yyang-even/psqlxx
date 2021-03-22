@@ -8,6 +8,8 @@
 using namespace psqlxx;
 
 
+namespace {
+
 const cxxopts::Options BuildOptions() {
     auto options = CreateBaseOptions();
 
@@ -19,9 +21,15 @@ const cxxopts::Options BuildOptions() {
 const std::string HandleOptions(cxxopts::Options &options, int argc, char **argv) {
     const auto results = ParseOptions(options, argc, argv);
 
-    HandleBaseOptions(options, results.value());    //throws
+    if (not results) {
+        exit(EXIT_FAILURE);
+    }
 
-    return HandlePqOptions(results.value());   //throws
+    HandleBaseOptions(options, results.value());
+
+    return HandlePqOptions(results.value());
+}
+
 }
 
 
