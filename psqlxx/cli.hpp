@@ -17,10 +17,12 @@ struct HistEvent;
 namespace psqlxx {
 
 struct CliOptions {
-    int history_size = 10000;
     std::string editor = "vi";
     std::string history_file;
+
     const char *editrc_file = nullptr;
+
+    int history_size = 10000;
 
     CliOptions();
 };
