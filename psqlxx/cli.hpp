@@ -14,7 +14,7 @@ typedef history History;
 struct HistEvent;
 
 
-namespace postgres_client {
+namespace psqlxx {
 
 struct CliOptions {
     int history_size = 10000;
@@ -47,4 +47,4 @@ public:
     void RegisterLineHandler(const LineHandlerType handler);
 };
 
-}//namespace postgres_client
+}//namespace psqlxx

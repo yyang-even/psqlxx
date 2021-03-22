@@ -1,9 +1,9 @@
-#include <postgres_client/args.hpp>
+#include <psqlxx/args.hpp>
 
 #include <gtest/gtest.h>
 
 
-using namespace postgres_client;
+using namespace psqlxx;
 
 
 class ArgvBuilder {

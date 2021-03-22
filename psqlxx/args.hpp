@@ -3,7 +3,7 @@
 #include <cxxopts.hpp>
 
 
-namespace postgres_client {
+namespace psqlxx {
 
 const cxxopts::Options CreateBaseOptions();
 
@@ -13,4 +13,4 @@ ParseOptions(cxxopts::Options &options, int argc, char **argv) noexcept;
 void HandleBaseOptions(const cxxopts::Options &options,
                        const cxxopts::ParseResult &parsed_options);
 
-}//namespace postgres_client
+}//namespace psqlxx

@@ -1,11 +1,11 @@
-#include <postgres_client/args.hpp>
-#include <postgres_client/version.hpp>
+#include <psqlxx/args.hpp>
+#include <psqlxx/version.hpp>
 
 
-namespace postgres_client {
+namespace psqlxx {
 
 const cxxopts::Options CreateBaseOptions() {
-    cxxopts::Options options("postgres_client", "Yet another Postgres client.");
+    cxxopts::Options options("psqlxx", "psql in C++.");
 
     options.add_options()
     ("h,help", "Print usage")
@@ -42,4 +42,4 @@ void HandleBaseOptions(const cxxopts::Options &options,
     }
 }
 
-}//namespace postgres_client
+}//namespace psqlxx
