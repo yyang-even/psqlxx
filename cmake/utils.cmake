@@ -1,17 +1,17 @@
 # add_gtest_for
 function (add_gtest_for source_name)
-    if (pclient_WANT_TESTS)
+    if (psqlxx_WANT_TESTS)
         set(test_source_name "${source_name}.test")
-        set(target_name "pclient.${source_name}.")
+        set(target_name "psqlxx.${source_name}.")
         add_executable(${target_name} ${test_source_name}.cpp)
-        target_link_libraries(${target_name} PRIVATE gtest_main pclient::pclient)
+        target_link_libraries(${target_name} PRIVATE gtest_main psqlxx::psqlxx)
 
         gtest_discover_tests(
             ${target_name}
             TEST_PREFIX ${target_name}
             PROPERTIES LABELS ${PROJECT_NAME})
 
-        if (pclient_WANT_AUTO_TESTS)
+        if (psqlxx_WANT_AUTO_TESTS)
             add_custom_command(
                 TARGET ${target_name}
                 POST_BUILD

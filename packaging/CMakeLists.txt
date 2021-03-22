@@ -1,4 +1,4 @@
-set(CPACK_PACKAGE_NAME postgres_client)
+set(CPACK_PACKAGE_NAME psqlxx)
 
 set(CPACK_PACKAGE_VENDOR YY)
 

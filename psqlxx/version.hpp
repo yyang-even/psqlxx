@@ -3,10 +3,10 @@
 #include <string>
 
 
-namespace postgres_client {
+namespace psqlxx {
 
 const std::string GetVersion();
 
 const std::string GetGitDescribe();
 
-}//namespace postgres_client
+}//namespace psqlxx

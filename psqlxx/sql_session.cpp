@@ -1,4 +1,4 @@
-#include <postgres_client/sql_session.hpp>
+#include <psqlxx/sql_session.hpp>
 
 #include <iostream>
 
@@ -9,7 +9,7 @@
 namespace {
 
 const std::string GetTransactionName() {
-    return "postgres_client";
+    return "psqlxx";
 }
 
 void Print(const pqxx::result &a_result) {
@@ -33,7 +33,7 @@ void Print(const pqxx::result &a_result) {
 }
 
 
-namespace postgres_client {
+namespace psqlxx {
 
 void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
                    const char *sql_cmd) {
@@ -66,4 +66,4 @@ const std::string HandlePqOptions(const cxxopts::ParseResult &parsed_options) {
     return parsed_options["connection-string"].as<std::string>();
 }
 
-}//namespace postgres_client
+}//namespace psqlxx
