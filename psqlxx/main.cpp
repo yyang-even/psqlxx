@@ -10,7 +10,7 @@ using namespace psqlxx;
 
 namespace {
 
-const cxxopts::Options BuildOptions() {
+const auto buildOptions() {
     auto options = CreateBaseOptions();
 
     AddPqOptions(options);
@@ -18,7 +18,7 @@ const cxxopts::Options BuildOptions() {
     return options;
 }
 
-const std::string HandleOptions(cxxopts::Options &options, int argc, char **argv) {
+const auto handleOptions(cxxopts::Options &options, int argc, char **argv) {
     const auto results = ParseOptions(options, argc, argv);
     if (not results) {
         exit(EXIT_FAILURE);
@@ -33,11 +33,15 @@ const std::string HandleOptions(cxxopts::Options &options, int argc, char **argv
 
 
 int main(int argc, char **argv) {
-    auto options = BuildOptions();
+    auto options = buildOptions();
 
-    const auto connection_str = HandleOptions(options, argc, argv);
+    const auto connection_options = handleOptions(options, argc, argv);
 
-    const auto my_connection = std::make_shared<pqxx::connection>(connection_str);  //throws
+    const auto my_connection = MakeConnection(connection_options);
+    if (not my_connection) {
+        exit(EXIT_FAILURE);
+    }
+
     Cli my_cli{argv[0], CliOptions{}};
     my_cli.Config();
     my_cli.RegisterLineHandler([my_connection](const char *sql_cmd) {
