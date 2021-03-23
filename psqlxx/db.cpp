@@ -1,4 +1,4 @@
-#include <psqlxx/sql_session.hpp>
+#include <psqlxx/db.hpp>
 
 #include <unistd.h>
 

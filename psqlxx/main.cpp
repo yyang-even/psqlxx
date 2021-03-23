@@ -2,7 +2,7 @@
 
 #include <psqlxx/args.hpp>
 #include <psqlxx/cli.hpp>
-#include <psqlxx/sql_session.hpp>
+#include <psqlxx/db.hpp>
 
 
 using namespace psqlxx;
