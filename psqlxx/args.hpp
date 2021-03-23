@@ -5,8 +5,10 @@
 
 namespace psqlxx {
 
+[[nodiscard]]
 const cxxopts::Options CreateBaseOptions();
 
+[[nodiscard]]
 const std::optional<cxxopts::ParseResult>
 ParseOptions(cxxopts::Options &options, int argc, char **argv) noexcept;
 

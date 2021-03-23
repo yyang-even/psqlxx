@@ -10,11 +10,13 @@ namespace fs = std::filesystem;
 
 namespace {
 
+[[nodiscard]]
 inline const char *prompt(const std::string &/*user_name = "postgres"*/) {
     // return (user_name + " > ").c_str();
     return "postgres > ";
 }
 
+[[nodiscard]]
 inline const std::string getDefaultHistoryFile() {
     fs::path home_dir(getenv("HOME"));
     return (home_dir / ".postgres-client.hist").string();

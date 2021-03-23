@@ -11,6 +11,7 @@
 
 namespace {
 
+[[nodiscard]]
 const std::string getTransactionName() {
     return "psqlxx";
 }
@@ -33,6 +34,7 @@ void printResult(const pqxx::result &a_result) {
     }
 }
 
+[[nodiscard]]
 auto connectionStringContainsPassword(const std::string &connection_string) {
     if (std::regex_search(connection_string, std::regex{"password ?="})) {
         return true;
@@ -45,6 +47,7 @@ auto connectionStringContainsPassword(const std::string &connection_string) {
     return false;
 }
 
+[[nodiscard]]
 const auto appendPassword(std::string connection_string, const char *password) {
     assert(not connectionStringContainsPassword(connection_string));
     assert(password);

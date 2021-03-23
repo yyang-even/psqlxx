@@ -10,6 +10,7 @@ using namespace psqlxx;
 
 namespace {
 
+[[nodiscard]]
 const auto buildOptions() {
     auto options = CreateBaseOptions();
 
@@ -18,6 +19,7 @@ const auto buildOptions() {
     return options;
 }
 
+[[nodiscard]]
 const auto handleOptions(cxxopts::Options &options, int argc, char **argv) {
     const auto results = ParseOptions(options, argc, argv);
     if (not results) {
