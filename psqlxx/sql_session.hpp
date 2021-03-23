@@ -28,6 +28,7 @@ struct PqOptions {
 };
 
 
+[[nodiscard]]
 const std::shared_ptr<pqxx::connection> MakeConnection(const PqOptions &options);
 
 void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
@@ -35,6 +36,7 @@ void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
 
 void AddPqOptions(cxxopts::Options &options);
 
+[[nodiscard]]
 const PqOptions HandlePqOptions(const cxxopts::ParseResult &parsed_options);
 
 }//namespace psqlxx

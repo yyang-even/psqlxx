@@ -23,6 +23,7 @@ public:
         }
     }
 
+    [[nodiscard]]
     char **argv() const {
         return m_argv.get();
     }
