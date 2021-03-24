@@ -14,7 +14,7 @@ namespace {
 const auto buildOptions() {
     auto options = CreateBaseOptions();
 
-    AddPqOptions(options);
+    AddDbOptions(options);
 
     return options;
 }
@@ -28,7 +28,7 @@ const auto handleOptions(cxxopts::Options &options, int argc, char **argv) {
 
     HandleBaseOptions(options, results.value());
 
-    return HandlePqOptions(results.value());
+    return HandleDbOptions(results.value());
 }
 
 }

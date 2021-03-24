@@ -1,9 +1,9 @@
 #include <psqlxx/db.hpp>
+#include <psqlxx/string_utils.hpp>
 
 #include <unistd.h>
 
 #include <iostream>
-#include <regex>
 
 #include <cxxopts.hpp>
 #include <pqxx/pqxx>
@@ -35,32 +35,9 @@ void printResult(const pqxx::result &a_result) {
 }
 
 [[nodiscard]]
-auto connectionStringContainsPassword(const std::string &connection_string) {
-    if (std::regex_search(connection_string, std::regex{"password ?="})) {
-        return true;
-    }
-
-    if (std::regex_search(connection_string, std::regex{":[^']+@"})) {
-        return true;
-    }
-
-    return false;
-}
-
-[[nodiscard]]
-const auto appendPassword(std::string connection_string, const char *password) {
-    assert(not connectionStringContainsPassword(connection_string));
-    assert(password);
-
-    if (connection_string.find("://") == std::string::npos) {
-        connection_string.push_back(' ');
-    } else if (connection_string.rfind('?') != std::string::npos) {
-        connection_string.push_back('?');
-    } else {
-        connection_string.push_back('&');
-    }
-
-    return connection_string + "password=" + password;
+const std::string overridePasswordFromPrompt(const std::string &connection_string) {
+    const auto *password = getpass("Password: ");
+    return psqlxx::internal::overridePassword(connection_string, password);
 }
 
 }
@@ -68,23 +45,48 @@ const auto appendPassword(std::string connection_string, const char *password) {
 
 namespace psqlxx {
 
-const std::string PqOptions::GetConnectionString() const {
-    if (prompt_for_password_if_not_supplied and
-        not base_connection_string.empty() and
-        not connectionStringContainsPassword(base_connection_string)) {
-        const auto *password = getpass("Password: ");
-        return appendPassword(base_connection_string, password);
+namespace internal {
+
+const std::string overridePassword(std::string connection_string,
+                                   const char *password) {
+    assert(password);
+
+    const auto was_connection_str_empty = connection_string.empty();
+
+    if (StartsWith(connection_string, "postgresql://") or
+        StartsWith(connection_string, "postgres://")) {
+        if (connection_string.rfind('?') == std::string::npos) {
+            connection_string.push_back('?');
+        } else {
+            connection_string.push_back('&');
+        }
+    } else {
+        if (not was_connection_str_empty) {
+            connection_string.push_back(' ');
+        }
     }
 
-    return base_connection_string;
+    return connection_string + "password=" + password;
 }
 
-const std::shared_ptr<pqxx::connection> MakeConnection(const PqOptions &options) {
-    const auto connection_string = options.GetConnectionString();
-    try {
-        return std::make_shared<pqxx::connection>(connection_string);
-    } catch (const pqxx::broken_connection &e) {
-        std::cerr << e.what() << std::endl;
+}//namespace internal
+
+const std::shared_ptr<pqxx::connection> MakeConnection(const DbOptions &options) {
+    for (bool original_tried = false; true; original_tried = true) {
+        try {
+            if (original_tried and options.prompt_for_password) {
+                const auto connection_string = overridePasswordFromPrompt(
+                                                   options.base_connection_string);
+                return std::make_shared<pqxx::connection>(connection_string);
+            } else {
+                return std::make_shared<pqxx::connection>(options.base_connection_string);
+            }
+        } catch (const pqxx::broken_connection &e) {
+            if (original_tried or not strstr(e.what(), "no password supplied")) {
+                std::cerr << e.what() << std::endl;
+                break;
+            }
+        }
     }
 
     return {};
@@ -109,7 +111,7 @@ void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
     });
 }
 
-void AddPqOptions(cxxopts::Options &options) {
+void AddDbOptions(cxxopts::Options &options) {
     options.add_options("PQXX")
     ("c,connection-string",
      "PQ connection string. Refer to the libpq connect call for a complete definition of what may go into the connect string. By default the client will try to connect to a server running on the local machine.",
@@ -119,10 +121,10 @@ void AddPqOptions(cxxopts::Options &options) {
     ;
 }
 
-const PqOptions HandlePqOptions(const cxxopts::ParseResult &parsed_options) {
-    PqOptions options;
+const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options) {
+    DbOptions options;
     options.base_connection_string = parsed_options["connection-string"].as<std::string>();
-    options.prompt_for_password_if_not_supplied =
+    options.prompt_for_password =
         not parsed_options["no-password"].as<bool>();
 
     return options;
