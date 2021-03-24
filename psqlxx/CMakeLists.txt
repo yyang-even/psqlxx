@@ -29,6 +29,7 @@ add_test(NAME psqlxx.main.can_display_help COMMAND psqlxx_main --help)
 add_test(NAME psqlxx.main.can_display_version COMMAND psqlxx_main --version)
 
 add_gtest_for(args)
+add_gtest_for(db)
 
 if (psqlxx_WANT_INSTALLER)
     install(

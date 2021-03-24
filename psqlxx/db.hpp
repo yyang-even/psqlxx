@@ -19,24 +19,32 @@ class connection;
 
 namespace psqlxx {
 
-struct PqOptions {
+namespace internal {
+
+/**
+ * @note    password escaping and quoting are currently not supported.
+ */
+[[nodiscard]]
+const std::string overridePassword(std::string connection_string, const char *password);
+
+}//namespace internal
+
+struct DbOptions {
     std::string base_connection_string;
 
-    bool prompt_for_password_if_not_supplied = true;
-
-    const std::string GetConnectionString() const;
+    bool prompt_for_password = true;
 };
 
 
 [[nodiscard]]
-const std::shared_ptr<pqxx::connection> MakeConnection(const PqOptions &options);
+const std::shared_ptr<pqxx::connection> MakeConnection(const DbOptions &options);
 
 void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
                    const char *sql_cmd);
 
-void AddPqOptions(cxxopts::Options &options);
+void AddDbOptions(cxxopts::Options &options);
 
 [[nodiscard]]
-const PqOptions HandlePqOptions(const cxxopts::ParseResult &parsed_options);
+const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options);
 
 }//namespace psqlxx
