@@ -3,8 +3,6 @@ os: linux
 dist: focal
 env:
     - CTEST_OUTPUT_ON_FAILURE=1
-services:
-    - postgresql
 compiler: gcc
 before_install: ./scripts/dependencies.sh
 git:
