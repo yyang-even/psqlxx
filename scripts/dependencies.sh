@@ -7,5 +7,4 @@
 sudo apt update
 
 sudo apt --yes install libpq-dev postgresql-server-dev-all
-sudo apt --yes install postgresql postgresql-contrib
 sudo apt --yes install libedit-dev
