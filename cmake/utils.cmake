@@ -1,5 +1,5 @@
 # add_gtest_for
-function (add_gtest_for source_name)
+function (discover_gtest_for source_name)
     if (psqlxx_WANT_TESTS)
         set(test_source_name "${source_name}.test")
         set(target_prefix "psqlxx.${source_name}.")
