@@ -2,20 +2,21 @@
 function (add_gtest_for source_name)
     if (psqlxx_WANT_TESTS)
         set(test_source_name "${source_name}.test")
-        set(target_name "psqlxx.${source_name}.")
+        set(target_prefix "psqlxx.${source_name}.")
+        set(target_name "${target_prefix}test")
         add_executable(${target_name} ${test_source_name}.cpp)
         target_link_libraries(${target_name} PRIVATE gtest_main psqlxx::psqlxx)
 
         gtest_discover_tests(
             ${target_name}
-            TEST_PREFIX ${target_name}
+            TEST_PREFIX ${target_prefix}
             PROPERTIES LABELS ${PROJECT_NAME})
 
         if (psqlxx_WANT_AUTO_TESTS)
             add_custom_command(
                 TARGET ${target_name}
                 POST_BUILD
-                COMMAND ctest --output-on-failure -R ^${target_name}
+                COMMAND ctest --output-on-failure -R ^${target_prefix}
                 COMMENT "Testing '${target_name}'"
                 VERBATIM)
         endif ()

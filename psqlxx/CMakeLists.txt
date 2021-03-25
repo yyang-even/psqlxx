@@ -12,7 +12,15 @@ add_library(psqlxx::version ALIAS psqlxx_version)
 set_target_properties(psqlxx_version PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_compile_options(psqlxx_version PRIVATE ${COMPILER_WARNING_OPTIONS})
 
-add_library(psqlxx_psqlxx args.cpp args.hpp cli.cpp cli.hpp db.cpp db.hpp)
+add_library(
+    psqlxx_psqlxx
+    args.cpp
+    args.hpp
+    cli.cpp
+    cli.hpp
+    db.cpp
+    db.hpp
+    string_utils.hpp)
 add_library(psqlxx::psqlxx ALIAS psqlxx_psqlxx)
 target_link_libraries(
     psqlxx_psqlxx
