@@ -2,9 +2,7 @@ language: cpp
 os: linux
 dist: focal
 env:
-    global:
-        - PGPORT=5433
-        - CTEST_OUTPUT_ON_FAILURE=1
+    - CTEST_OUTPUT_ON_FAILURE=1
 services:
     - postgresql
 compiler: gcc
