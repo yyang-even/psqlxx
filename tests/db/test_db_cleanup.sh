@@ -6,9 +6,7 @@
 
 set -ex
 
-THIS_DIR=$(dirname "$0")
-
-source $THIS_DIR/test_db_defines.sh
+source test_db_defines.sh
 
 if psql --command "SELECT 1;" &> /dev/null; then
     CMD_PREFIX=""

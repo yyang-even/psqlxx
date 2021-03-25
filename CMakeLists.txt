@@ -51,6 +51,8 @@ if (psqlxx_WANT_TESTS)
     set(gtest_force_shared_crt
         ON
         CACHE BOOL "" FORCE)
+
+    include(test_defines)
 endif ()
 
 option(psqlxx_WANT_INSTALLER "Build the project's own installer." OFF)
