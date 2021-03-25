@@ -1,9 +1,11 @@
 language: cpp
 dist: focal
+os: linux
 env:
     - CTEST_OUTPUT_ON_FAILURE=1
+services:
+    - postgresql
 compiler: gcc
-os: linux
 before_install: ./scripts/dependencies.sh
 git:
     submodules: true
