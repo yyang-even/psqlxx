@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <unordered_map>
 
 #include <cxxopts.hpp>
 #include <pqxx/pqxx>
@@ -40,6 +41,12 @@ const std::string overridePasswordFromPrompt(const std::string &connection_strin
     return psqlxx::internal::overridePassword(connection_string, password);
 }
 
+[[nodiscard]]
+static inline const auto
+ConcatenateKeyValue(const std::string &key, const std::string &value) {
+    return key + "=" + value;
+}
+
 }
 
 
@@ -66,7 +73,7 @@ const std::string overridePassword(std::string connection_string,
         }
     }
 
-    return connection_string + "password=" + password;
+    return connection_string + ComposeDbParameter(DbParameterKey::password, password);
 }
 
 }//namespace internal
@@ -127,6 +134,19 @@ const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options) {
     options.prompt_for_password = not parsed_options["no-password"].as<bool>();
 
     return options;
+}
+
+const std::string
+ComposeDbParameter(const DbParameterKey key_enum, const std::string &value) {
+    const static std::unordered_map<DbParameterKey, std::string> DB_PARAMETER_KEY_MAP = {
+        {DbParameterKey::host, "host"},
+        {DbParameterKey::port, "port"},
+        {DbParameterKey::dbname, "dbname"},
+        {DbParameterKey::user, "user"},
+        {DbParameterKey::password, "password"},
+    };
+
+    return ConcatenateKeyValue(DB_PARAMETER_KEY_MAP.at(key_enum), value);
 }
 
 }//namespace psqlxx

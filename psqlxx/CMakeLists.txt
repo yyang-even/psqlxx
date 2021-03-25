@@ -39,6 +39,11 @@ add_test(NAME psqlxx.main.can_display_version COMMAND psqlxx_main --version)
 discover_gtest_for(args)
 discover_gtest_for(db)
 
+configure_file(test_utils.cpp.in test_utils.cpp @ONLY)
+
+add_gtest_for(real_db ${CMAKE_CURRENT_BINARY_DIR}/test_utils.cpp test_utils.hpp)
+set_tests_properties(psqlxx.real_db.test PROPERTIES FIXTURES_REQUIRED RealDbTests)
+
 if (psqlxx_WANT_INSTALLER)
     install(
         TARGETS psqlxx_main
