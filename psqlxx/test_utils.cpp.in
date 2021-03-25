@@ -1,0 +1,34 @@
+#include <psqlxx/test_utils.hpp>
+
+#include <psqlxx/db.hpp>
+
+
+namespace psqlxx {
+
+namespace test {
+
+const std::string GetDbHostParameter() {
+    return ComposeDbParameter(DbParameterKey::host, "@psqlxx_TEST_DB_HOST@");
+}
+
+const std::string GetSharedDbNameParameter() {
+    return ComposeDbParameter(DbParameterKey::dbname, "@psqlxx_SHARED_TEST_DB_NAME@");
+}
+
+const std::string GetViewerConnectionString() {
+    return GetDbHostParameter() + " " +
+        GetSharedDbNameParameter() + " " +
+        ComposeDbParameter(DbParameterKey::user, "@psqlxx_TEST_DB_READ_USER_NAME@") + " " +
+        ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_READ_USER_PASSWORD@");
+}
+
+const std::string GetAdminConnectionString() {
+    return GetDbHostParameter() + " " +
+        GetSharedDbNameParameter() + " " +
+        ComposeDbParameter(DbParameterKey::user, "@psqlxx_TEST_DB_ADMIN_USER_NAME@") + " " +
+        ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_ADMIN_USER_PASSWORD@");
+}
+
+}//namespace test
+
+}//namespace psqlxx
