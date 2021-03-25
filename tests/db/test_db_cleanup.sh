@@ -11,13 +11,13 @@ THIS_DIR=$(dirname "$0")
 source $THIS_DIR/test_db_defines.sh
 
 if psql --command "SELECT 1;" &> /dev/null; then
-    CMD_PREFIX=""
+    CMD_SUFFIX=""
 else
-    CMD_PREFIX="sudo -u postgres"
+    CMD_SUFFIX="--username=postgres"
 fi
 
-$CMD_PREFIX dropdb --if-exists $SHARED_DB_NAME
+dropdb --if-exists $SHARED_DB_NAME $CMD_SUFFIX
 
-$CMD_PREFIX dropuser --if-exists $READ_USER_NAME
+dropuser --if-exists $READ_USER_NAME $CMD_SUFFIX
 
-$CMD_PREFIX dropuser --if-exists $ADMIN_USER_NAME
+dropuser --if-exists $ADMIN_USER_NAME $CMD_SUFFIX
