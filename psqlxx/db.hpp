@@ -47,4 +47,17 @@ void AddDbOptions(cxxopts::Options &options);
 [[nodiscard]]
 const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options);
 
+
+enum class DbParameterKey {
+    host,
+    port,
+    dbname,
+    user,
+    password,
+};
+
+[[nodiscard]]
+const std::string
+ComposeDbParameter(const DbParameterKey key_enum, const std::string &value);
+
 }//namespace psqlxx
