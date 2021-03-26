@@ -30,16 +30,9 @@ const std::string GetSharedDbNameParameter() {
     return ComposeDbParameter(DbParameterKey::dbname, "@psqlxx_SHARED_TEST_DB_NAME@");
 }
 
-const std::string GetViewerConnectionString(const bool with_password) {
-    const auto connection_str_without_password =
-        buildConnectionStringFor("@psqlxx_TEST_DB_READ_USER_NAME@");
-
-    if (with_password)
-        return connection_str_without_password + " " +
-               ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_READ_USER_PASSWORD@");
-    else {
-        return connection_str_without_password;
-    }
+const std::string GetViewerConnectionString() {
+    return buildConnectionStringFor("@psqlxx_TEST_DB_READ_USER_NAME@") + " " +
+           ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_READ_USER_PASSWORD@");
 }
 
 const std::string GetAdminConnectionString() {
