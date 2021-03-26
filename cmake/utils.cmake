@@ -5,6 +5,7 @@ function (enable_auto_test_command target_name tests_regex)
             TARGET ${target_name}
             POST_BUILD
             COMMAND ctest --output-on-failure -R ${tests_regex}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             COMMENT "Testing '${target_name}'"
             VERBATIM)
     endif ()
@@ -20,7 +21,7 @@ function (add_gtest_for source_name)
 
         add_test(NAME ${target_name} COMMAND ${target_name})
 
-        # enable_auto_test_command(${target_name} ^${target_name}$)
+        enable_auto_test_command(${target_name} ^${target_name}$)
     endif ()
 endfunction ()
 
