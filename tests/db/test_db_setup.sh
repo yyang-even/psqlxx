@@ -25,4 +25,6 @@ $CMD_PREFIX createdb --owner=$ADMIN_USER_NAME $SHARED_DB_NAME
 psql --host=$DB_HOST --command "$SQL_VERSION" "dbname=$SHARED_DB_NAME user=$ADMIN_USER_NAME password='$ADMIN_USER_PASSWORD'"
 psql --host=$DB_HOST --command "$SQL_VERSION" "dbname=$SHARED_DB_NAME user=$READ_USER_NAME password='$READ_USER_PASSWORD'"
 
-psql --host=$DB_HOST --command "$SQL_VERSION" "dbname=$SHARED_DB_NAME user=$READ_USER_NAME password='wrong_password'"
+sudo cat /etc/postgresql/*/main/pg_hba.conf
+
+exit 1
