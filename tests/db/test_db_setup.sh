@@ -21,3 +21,4 @@ $CMD_PREFIX psql --command "CREATE USER $READ_USER_NAME WITH NOCREATEDB NOCREATE
 $CMD_PREFIX createdb --owner=$ADMIN_USER_NAME $SHARED_DB_NAME
 
 psql --host=$DB_HOST --command "SELECT 1;" "dbname=$SHARED_DB_NAME user=$ADMIN_USER_NAME password='$ADMIN_USER_PASSWORD'"
+psql --host=$DB_HOST --command "SELECT 1;" "dbname=$SHARED_DB_NAME user=$READ_USER_NAME password='$READ_USER_PASSWORD'"

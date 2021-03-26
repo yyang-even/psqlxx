@@ -1,14 +1,15 @@
 default_stages: [commit]
 repos:
   - repo: https://github.com/yyang-even/yyLinuxConfig
-    rev: e475e920fedb28f7bff2a58d1142a255fd3e86c4
+    rev: 96acd7cc818101281eb56f6b265386d4bef27188
     hooks:
       - id: astyle-c
+      - id: astyle-c-in
       - id: astyle-cpp
       - id: shfmt
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v3.4.0
     hooks:
       - id: check-executables-have-shebangs
         stages: [commit]
