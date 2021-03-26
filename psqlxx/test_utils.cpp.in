@@ -17,16 +17,16 @@ const std::string GetSharedDbNameParameter() {
 
 const std::string GetViewerConnectionString() {
     return GetDbHostParameter() + " " +
-        GetSharedDbNameParameter() + " " +
-        ComposeDbParameter(DbParameterKey::user, "@psqlxx_TEST_DB_READ_USER_NAME@") + " " +
-        ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_READ_USER_PASSWORD@");
+           GetSharedDbNameParameter() + " " +
+           ComposeDbParameter(DbParameterKey::user, "@psqlxx_TEST_DB_READ_USER_NAME@") + " " +
+           ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_READ_USER_PASSWORD@");
 }
 
 const std::string GetAdminConnectionString() {
     return GetDbHostParameter() + " " +
-        GetSharedDbNameParameter() + " " +
-        ComposeDbParameter(DbParameterKey::user, "@psqlxx_TEST_DB_ADMIN_USER_NAME@") + " " +
-        ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_ADMIN_USER_PASSWORD@");
+           GetSharedDbNameParameter() + " " +
+           ComposeDbParameter(DbParameterKey::user, "@psqlxx_TEST_DB_ADMIN_USER_NAME@") + " " +
+           ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_ADMIN_USER_PASSWORD@");
 }
 
 }//namespace test
