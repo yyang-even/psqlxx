@@ -14,7 +14,7 @@ const std::string GetDbHostParameter();
 const std::string GetSharedDbNameParameter();
 
 [[nodiscard]]
-const std::string GetViewerConnectionString();
+const std::string GetViewerConnectionString(const bool with_password = true);
 
 [[nodiscard]]
 const std::string GetAdminConnectionString();
