@@ -29,7 +29,7 @@ TEST(MakeConnectionTests, ReturnNullptrIfGivenWrongPasswordAndNoPrompt) {
     DbOptions options;
     options.prompt_for_password = false;
     options.base_connection_string =
-        internal::overridePassword(GetViewerConnectionString(false), "wrong_password");
+        internal::overridePassword(GetViewerConnectionString(), "wrong_password");
 
     ASSERT_FALSE(MakeConnection(options));
 }
