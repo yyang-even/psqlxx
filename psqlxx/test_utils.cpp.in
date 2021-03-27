@@ -1,6 +1,7 @@
 #include <psqlxx/test_utils.hpp>
 
 #include <psqlxx/db.hpp>
+#include <psqlxx/string_utils.hpp>
 
 
 using namespace psqlxx;
@@ -10,9 +11,9 @@ namespace {
 
 [[nodiscard]]
 const auto buildConnectionStringFor(const std::string &user) {
-    return test::GetDbHostParameter() + " " +
-           test::GetSharedDbNameParameter() + " " +
-           ComposeDbParameter(DbParameterKey::user, user);
+    return SpaceJoiner(test::GetDbHostParameter(),
+                       test::GetSharedDbNameParameter(),
+                       ComposeDbParameter(DbParameterKey::user, user));
 }
 
 }
@@ -31,13 +32,13 @@ const std::string GetSharedDbNameParameter() {
 }
 
 const std::string GetViewerConnectionString() {
-    return buildConnectionStringFor("@psqlxx_TEST_DB_READ_USER_NAME@") + " " +
-           ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_READ_USER_PASSWORD@");
+    return SpaceJoiner(buildConnectionStringFor("@psqlxx_TEST_DB_READ_USER_NAME@"),
+                       ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_READ_USER_PASSWORD@"));
 }
 
 const std::string GetAdminConnectionString() {
-    return buildConnectionStringFor("@psqlxx_TEST_DB_ADMIN_USER_NAME@") + " " +
-           ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_ADMIN_USER_PASSWORD@");
+    return SpaceJoiner(buildConnectionStringFor("@psqlxx_TEST_DB_ADMIN_USER_NAME@"),
+                       ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_ADMIN_USER_PASSWORD@"));
 }
 
 }//namespace test
