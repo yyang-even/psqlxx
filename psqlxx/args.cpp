@@ -8,8 +8,8 @@ const cxxopts::Options CreateBaseOptions() {
     cxxopts::Options options("psqlxx", "psql in C++.");
 
     options.add_options()
-    ("h,help", "Print usage")
-    ("v,version", "Print version")
+    ("h,help", "print usage")
+    ("V,version", "print version")
     ;
 
     return options;

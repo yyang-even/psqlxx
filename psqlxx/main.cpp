@@ -31,6 +31,10 @@ const auto handleOptions(cxxopts::Options &options, int argc, char **argv) {
     return HandleDbOptions(results.value());
 }
 
+constexpr auto toExitCode(const bool success) {
+    return success ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 }
 
 
@@ -41,13 +45,18 @@ int main(int argc, char **argv) {
 
     const auto my_connection = MakeConnection(connection_options);
     if (not my_connection) {
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
+    }
+
+    if (connection_options.list_DBs_and_exit) {
+        const auto list_dbs_sql = BuildListDBsSql();
+        return toExitCode(DoTransaction(my_connection, list_dbs_sql.c_str()));
     }
 
     Cli my_cli{argv[0], CliOptions{}};
     my_cli.Config();
     my_cli.RegisterLineHandler([my_connection](const char *sql_cmd) {
-        DoTransaction(my_connection, sql_cmd);
+        return DoTransaction(my_connection, sql_cmd);
     });
     my_cli.Run();
 

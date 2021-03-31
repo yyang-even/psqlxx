@@ -42,6 +42,8 @@ class Cli {
 
 public:
     Cli(const char *program_path, CliOptions options);
+    Cli(const Cli &) = delete;
+    Cli &operator=(const Cli &) = delete;
     ~Cli();
 
     void Config() const;
