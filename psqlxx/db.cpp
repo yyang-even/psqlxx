@@ -129,6 +129,8 @@ void AddDbOptions(cxxopts::Options &options) {
 
     ("l,list-dbs", "list available databases, then exit",
      cxxopts::value<bool>()->default_value("false"))
+    ("c,command", "run only single command (SQL or internal) and exit",
+     cxxopts::value<std::vector<std::string>>(), "COMMAND")
     ;
 }
 
@@ -138,6 +140,10 @@ const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options) {
     options.prompt_for_password = not parsed_options["no-password"].as<bool>();
 
     options.list_DBs_and_exit = parsed_options["list-dbs"].as<bool>();
+
+    if (parsed_options.count("command")) {
+        options.commands = parsed_options["command"].as<std::vector<std::string>>();
+    }
 
     return options;
 }

@@ -53,6 +53,16 @@ int main(int argc, char **argv) {
         return toExitCode(DoTransaction(my_connection, list_dbs_sql.c_str()));
     }
 
+    if (not connection_options.commands.empty()) {
+        for (const auto &a_command : connection_options.commands) {
+            if (not DoTransaction(my_connection, a_command.c_str())) {
+                return EXIT_FAILURE;
+            }
+        }
+
+        return EXIT_SUCCESS;
+    }
+
     Cli my_cli{argv[0], CliOptions{}};
     my_cli.Config();
     my_cli.RegisterLineHandler([my_connection](const char *sql_cmd) {

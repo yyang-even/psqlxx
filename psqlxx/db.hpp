@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <vector>
 
 
 namespace cxxopts {
@@ -31,6 +33,7 @@ const std::string overridePassword(std::string connection_string, const char *pa
 
 struct DbOptions {
     std::string base_connection_string;
+    std::vector<std::string> commands;
 
     bool prompt_for_password = true;
 
