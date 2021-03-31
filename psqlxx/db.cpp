@@ -98,31 +98,36 @@ const std::shared_ptr<pqxx::connection> MakeConnection(const DbOptions &options)
     return {};
 }
 
-void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
+bool DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
                    const char *sql_cmd) {
     assert(connection_ptr);
 
-    pqxx::perform([connection_ptr, sql_cmd] {
+    return pqxx::perform([connection_ptr, sql_cmd] {
         try {
             pqxx::work w(*connection_ptr, getTransactionName());
 
             auto r = w.exec(sql_cmd);
 
             printResult(r);
+            return true;
 
         } catch (const std::exception &e) {
             std::cerr << e.what()
                       << std::endl;
+            return false;
         }
     });
 }
 
 void AddDbOptions(cxxopts::Options &options) {
     options.add_options("PQXX")
-    ("c,connection-string",
+    ("S,connection-string",
      "PQ connection string. Refer to the libpq connect call for a complete definition of what may go into the connect string. By default the client will try to connect to a server running on the local machine.",
      cxxopts::value<std::string>()->default_value(""))
-    ("no-password", "never prompt for password",
+    ("w,no-password", "never prompt for password",
+     cxxopts::value<bool>()->default_value("false"))
+
+    ("l,list-dbs", "list available databases, then exit",
      cxxopts::value<bool>()->default_value("false"))
     ;
 }
@@ -131,6 +136,8 @@ const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options) {
     DbOptions options;
     options.base_connection_string = parsed_options["connection-string"].as<std::string>();
     options.prompt_for_password = not parsed_options["no-password"].as<bool>();
+
+    options.list_DBs_and_exit = parsed_options["list-dbs"].as<bool>();
 
     return options;
 }
@@ -146,6 +153,19 @@ ComposeDbParameter(const DbParameterKey key_enum, const std::string &value) {
     };
 
     return concatenateKeyValue(DB_PARAMETER_KEY_MAP.at(key_enum), value);
+}
+
+const std::string BuildListDBsSql() {
+    return R"(
+SELECT d.datname as "Name",
+       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+       d.datcollate as "Collate",
+       d.datctype as "Ctype",
+       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+FROM pg_catalog.pg_database d
+ORDER BY 1;
+)";
 }
 
 }//namespace psqlxx

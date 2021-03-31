@@ -33,13 +33,16 @@ struct DbOptions {
     std::string base_connection_string;
 
     bool prompt_for_password = true;
+
+    bool list_DBs_and_exit = false;
 };
 
 
 [[nodiscard]]
 const std::shared_ptr<pqxx::connection> MakeConnection(const DbOptions &options);
 
-void DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
+[[nodiscard]]
+bool DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
                    const char *sql_cmd);
 
 void AddDbOptions(cxxopts::Options &options);
@@ -59,5 +62,8 @@ enum class DbParameterKey {
 [[nodiscard]]
 const std::string
 ComposeDbParameter(const DbParameterKey key_enum, const std::string &value);
+
+[[nodiscard]]
+const std::string BuildListDBsSql();
 
 }//namespace psqlxx
