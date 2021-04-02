@@ -16,8 +16,9 @@ function (add_gtest_for source_name)
     if (psqlxx_WANT_TESTS)
         set(test_source_name "${source_name}.test")
         set(target_name "psqlxx.${test_source_name}")
-        add_executable(${target_name} ${test_source_name}.cpp ${ARGN})
-        target_link_libraries(${target_name} PRIVATE gtest_main psqlxx::psqlxx)
+        add_executable(${target_name} ${test_source_name}.cpp)
+        target_link_libraries(${target_name} PRIVATE gtest_main ${ARGN})
+        target_compile_options(${target_name} PRIVATE ${COMPILER_WARNING_OPTIONS})
 
         add_test(NAME ${target_name} COMMAND ${target_name})
 
@@ -32,7 +33,8 @@ function (discover_gtest_for source_name)
         set(target_prefix "psqlxx.${source_name}.")
         set(target_name "${target_prefix}test")
         add_executable(${target_name} ${test_source_name}.cpp)
-        target_link_libraries(${target_name} PRIVATE gtest_main psqlxx::psqlxx)
+        target_link_libraries(${target_name} PRIVATE gtest_main ${ARGN})
+        target_compile_options(${target_name} PRIVATE ${COMPILER_WARNING_OPTIONS})
 
         gtest_discover_tests(
             ${target_name}
