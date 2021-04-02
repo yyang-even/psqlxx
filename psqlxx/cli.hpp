@@ -13,6 +13,9 @@ typedef history History;
 
 struct HistEvent;
 
+struct tokenizer;
+typedef tokenizer Tokenizer;
+
 
 namespace psqlxx {
 
@@ -31,12 +34,14 @@ struct CliOptions {
 class Cli {
     using LineHandlerType = std::function<void(const char *)>;
 
+    const CliOptions m_options;
+
     EditLine *m_el = nullptr;
 
     History *m_history = nullptr;
     std::unique_ptr<HistEvent> m_ev;
 
-    const CliOptions m_options;
+    Tokenizer *m_tokenizer = nullptr;
 
     LineHandlerType m_line_handler;
 
