@@ -1,11 +1,14 @@
 #include <psqlxx/cli.hpp>
 
+#include <cassert>
+
 #include <filesystem>
 #include <iostream>
 
 #include <histedit.h>
 
 
+using namespace psqlxx;
 namespace fs = std::filesystem;
 
 namespace {
@@ -22,6 +25,53 @@ inline const std::string getDefaultHistoryFile() {
     return (home_dir / ".postgres-client.hist").string();
 }
 
+[[nodiscard]]
+auto help(const std::vector<CommandGroup> &command_groups,
+          const char **words,
+          const int word_count) {
+    if (word_count == 2) {
+        return HelpGroups(command_groups, words[1]);
+    } else {
+        return HelpGroups(command_groups);
+    }
+}
+
+[[nodiscard]]
+auto doEditlineBuiltinCommands(EditLine *const el,
+                               const char **words,
+                               const int word_count) {
+    assert(el);
+
+    const auto result = el_parse(el, word_count, words);
+
+    switch (result) {
+        case -1:
+            return CommandResult::unknown;
+        case 0:
+            return CommandResult::success;
+        default:
+            return CommandResult::failure;
+    }
+}
+
+[[nodiscard]]
+const auto CreateBuiltinCommandGroup(const std::vector<CommandGroup> &command_groups,
+                                     EditLine *const el) {
+    CommandGroup group{"builtin", "quit, exit, help and builtin editline commands"};
+
+    group.AddOptions()
+    ({"quit", "exit", "\\q"}, {}, &Quit, "To quit")
+    ({"help"}, {"[GROUP]"}, [&command_groups](const char **words, const int word_count) {
+        return help(command_groups, words, word_count);
+    }, "Print help summary or for an individual group")
+    ({}, {"..."}, [el](const char **words, const int word_count) {
+        return doEditlineBuiltinCommands(el, words, word_count);
+    }, "Print help summary or for an individual group")
+    ;
+
+    return group;
+}
+
 }
 
 
@@ -31,14 +81,17 @@ CliOptions::CliOptions(): history_file(getDefaultHistoryFile()) {
 }
 
 
-Cli::Cli(const char *program_path, CliOptions options) : m_ev(new HistEvent()),
-    m_options(std::move(options)) {
-    m_el = el_init(program_path, stdin, stdout, stderr);
-
-    m_history = history_init();
+Cli::Cli(const char *program_path, CliOptions options) : m_options(std::move(options)),
+    m_el(el_init(program_path, stdin, stdout, stderr)),
+    m_history(history_init()),
+    m_ev(new HistEvent()),
+    m_tokenizer(tok_init(nullptr)) {
+    m_command_groups.emplace_back(CreateBuiltinCommandGroup(m_command_groups, m_el));
 }
 
 Cli::~Cli() {
+    tok_end(m_tokenizer);
+
     history(m_history, m_ev.get(), H_SAVE, m_options.history_file.c_str());
     history_end(m_history);
 
@@ -73,9 +126,42 @@ void Cli::Config() const {
 void Cli::Run() const {
     const char *a_line = nullptr;
     int line_length = 0;
+    bool previous_line_completed = true;
+
     while ((a_line = el_gets(m_el, &line_length)) and line_length != 0)  {
-        history(m_history, m_ev.get(), H_ENTER, a_line);
+        // Ignore empty lines
+        if (previous_line_completed && line_length == 1) {
+            continue;
+        }
+
+        int word_count = 0;
+        const char **words = nullptr;
+        const auto tokenize_result = tok_str(m_tokenizer, a_line, &word_count, &words);
+        if (tokenize_result < 0) {
+            std::cerr << "Internal error." << std::endl;
+            continue;
+        }
+        const auto current_line_completed = not(tokenize_result > 0);
+
+        history(m_history, m_ev.get(), previous_line_completed ? H_ENTER : H_APPEND, a_line);
+        previous_line_completed = current_line_completed;
+        if (not current_line_completed) {
+            continue;
+        }
+
+        if (word_count <= 0) {
+            continue;
+        }
+
+        for (const auto &a_group : m_command_groups) {
+            const auto result = a_group(words, word_count);
+            if (result == CommandResult::exit) {
+                return;
+            }
+        }
         m_line_handler(a_line);
+
+        tok_reset(m_tokenizer);
     }
 }
 
