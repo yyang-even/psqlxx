@@ -1,14 +1,14 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 
 
 namespace psqlxx {
 
 [[nodiscard]]
-const std::string GetVersion();
+const std::string_view GetVersion();
 
 [[nodiscard]]
-const std::string GetGitDescribe();
+const std::string_view GetGitDescribe();
 
 }//namespace psqlxx

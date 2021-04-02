@@ -10,10 +10,10 @@ using namespace psqlxx;
 namespace {
 
 [[nodiscard]]
-const auto buildConnectionStringFor(const std::string &user) {
+const auto buildConnectionStringFor(std::string user) {
     return SpaceJoiner(test::GetDbHostParameter(),
                        test::GetSharedDbNameParameter(),
-                       ComposeDbParameter(DbParameterKey::user, user));
+                       ComposeDbParameter(DbParameterKey::user, std::move(user)));
 }
 
 }
