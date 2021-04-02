@@ -18,8 +18,11 @@ add_library(
     args.hpp
     cli.cpp
     cli.hpp
+    command.cpp
+    command.hpp
     db.cpp
     db.hpp
+    exception.hpp
     string_utils.hpp)
 add_library(psqlxx::psqlxx ALIAS psqlxx_psqlxx)
 target_link_libraries(
@@ -37,12 +40,16 @@ add_test(NAME psqlxx.main.can_display_help COMMAND psqlxx_main --help)
 add_test(NAME psqlxx.main.can_display_version COMMAND psqlxx_main --version)
 enable_auto_test_command(psqlxx_main ^psqlxx.main)
 
-discover_gtest_for(args)
-discover_gtest_for(db)
+discover_gtest_for(args psqlxx::psqlxx)
+discover_gtest_for(db psqlxx::psqlxx)
+discover_gtest_for(string_utils)
 
 configure_file(test_utils.cpp.in test_utils.cpp @ONLY)
+add_library(psqlxx_test_utils ${CMAKE_CURRENT_BINARY_DIR}/test_utils.cpp test_utils.hpp)
+add_library(psqlxx::test_utils ALIAS psqlxx_test_utils)
+target_compile_options(psqlxx_test_utils PUBLIC ${COMPILER_WARNING_OPTIONS})
 
-add_gtest_for(real_db ${CMAKE_CURRENT_BINARY_DIR}/test_utils.cpp test_utils.hpp)
+add_gtest_for(real_db psqlxx::psqlxx psqlxx::test_utils)
 set_tests_properties(psqlxx.real_db.test PROPERTIES FIXTURES_REQUIRED RealDbTests)
 
 if (psqlxx_WANT_INSTALLER)

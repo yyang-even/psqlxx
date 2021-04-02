@@ -2,11 +2,11 @@
 
 namespace psqlxx {
 
-const std::string GetVersion() {
+const std::string_view GetVersion() {
     return "@psqlxx_VERSION@";
 }
 
-const std::string GetGitDescribe() {
+const std::string_view GetGitDescribe() {
     return "@GIT_COMMIT_DESCRIPTION@";
 }
 
