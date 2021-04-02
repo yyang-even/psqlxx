@@ -20,7 +20,7 @@ const auto buildOptions() {
 }
 
 [[nodiscard]]
-const auto handleOptions(cxxopts::Options &options, int argc, char **argv) {
+const auto handleOptions(cxxopts::Options &options, const int argc, char **argv) {
     const auto results = ParseOptions(options, argc, argv);
     if (not results) {
         exit(EXIT_FAILURE);
