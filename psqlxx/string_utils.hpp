@@ -2,18 +2,19 @@
 
 #include <cassert>
 
+#include <algorithm>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 
 namespace psqlxx {
 
 [[nodiscard]]
-static inline bool StartsWith(const std::string &str, const char *prefix) {
-    assert(prefix);
-
+static inline bool StartsWith(const std::string &str, const std::string_view prefix) {
     return str.rfind(prefix, 0) == 0;
 }
+
 
 class Joiner {
     char m_delimiter{};
