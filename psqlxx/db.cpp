@@ -36,13 +36,13 @@ void printResult(const pqxx::result &a_result) {
 }
 
 [[nodiscard]]
-const auto overridePasswordFromPrompt(const std::string &connection_string) {
-    const auto *password = getpass("Password: ");
-    return psqlxx::internal::overridePassword(connection_string, password);
+const auto overridePasswordFromPrompt(std::string connection_string) {
+    const auto password = getpass("Password: ");
+    return psqlxx::internal::overridePassword(std::move(connection_string), password);
 }
 
 [[nodiscard]]
-const auto concatenateKeyValue(const std::string &key, const std::string &value) {
+const auto concatenateKeyValue(std::string key, std::string value) {
     return key + "=" + value;
 }
 
@@ -54,9 +54,7 @@ namespace psqlxx {
 namespace internal {
 
 const std::string overridePassword(std::string connection_string,
-                                   const char *password) {
-    assert(password);
-
+                                   std::string password) {
     const auto was_connection_str_empty = connection_string.empty();
 
     if (StartsWith(connection_string, "postgresql://") or
@@ -72,7 +70,8 @@ const std::string overridePassword(std::string connection_string,
         }
     }
 
-    return connection_string + ComposeDbParameter(DbParameterKey::password, password);
+    return connection_string + ComposeDbParameter(DbParameterKey::password,
+                                                  std::move(password));
 }
 
 }//namespace internal
@@ -99,7 +98,7 @@ const std::shared_ptr<pqxx::connection> MakeConnection(const DbOptions &options)
 }
 
 bool DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
-                   const char *sql_cmd) {
+                   const std::string_view sql_cmd) {
     assert(connection_ptr);
 
     return pqxx::perform([connection_ptr, sql_cmd] {
@@ -149,8 +148,8 @@ const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options) {
 }
 
 const std::string
-ComposeDbParameter(const DbParameterKey key_enum, const std::string &value) {
-    const static std::unordered_map<DbParameterKey, std::string> DB_PARAMETER_KEY_MAP = {
+ComposeDbParameter(const DbParameterKey key_enum, std::string value) {
+    const static std::unordered_map<DbParameterKey, std::string> DB_PARAMETER_KEY_MAP {
         {DbParameterKey::host, "host"},
         {DbParameterKey::port, "port"},
         {DbParameterKey::dbname, "dbname"},
@@ -158,7 +157,7 @@ ComposeDbParameter(const DbParameterKey key_enum, const std::string &value) {
         {DbParameterKey::password, "password"},
     };
 
-    return concatenateKeyValue(DB_PARAMETER_KEY_MAP.at(key_enum), value);
+    return concatenateKeyValue(DB_PARAMETER_KEY_MAP.at(key_enum), std::move(value));
 }
 
 const std::string BuildListDBsSql() {
