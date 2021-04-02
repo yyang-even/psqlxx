@@ -46,7 +46,7 @@ const std::shared_ptr<pqxx::connection> MakeConnection(const DbOptions &options)
 
 [[nodiscard]]
 bool DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
-                   const char *sql_cmd);
+                   const std::string_view sql_cmd);
 
 void AddDbOptions(cxxopts::Options &options);
 
@@ -64,7 +64,7 @@ enum class DbParameterKey {
 
 [[nodiscard]]
 const std::string
-ComposeDbParameter(const DbParameterKey key_enum, const std::string &value);
+ComposeDbParameter(const DbParameterKey key_enum, std::string value);
 
 [[nodiscard]]
 const std::string BuildListDBsSql();

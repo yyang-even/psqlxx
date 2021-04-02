@@ -13,7 +13,7 @@ class ArgvBuilder {
 public:
     const int argc;
 
-    explicit ArgvBuilder(std::initializer_list<const char *> args)
+    explicit constexpr ArgvBuilder(std::initializer_list<const char *> args)
         : m_argv(new char *[args.size()]),
           argc(args.size()) {
         std::size_t i = 0;

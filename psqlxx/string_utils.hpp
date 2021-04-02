@@ -2,8 +2,17 @@
 
 #include <cassert>
 
+#include <algorithm>
 #include <sstream>
 #include <string>
+#include <string_view>
+
+
+#define ToLambda(F) [](auto&&... args)                              \
+    noexcept(noexcept(F(std::forward<decltype(args)>(args)...)))    \
+    -> decltype(F(std::forward<decltype(args)>(args)...)) {         \
+        return F(std::forward<decltype(args)>(args)...);            \
+    }
 
 
 namespace psqlxx {
@@ -14,6 +23,22 @@ static inline bool StartsWith(const std::string &str, const char *prefix) {
 
     return str.rfind(prefix, 0) == 0;
 }
+
+
+[[nodiscard]]
+static inline constexpr std::string_view
+Trim(const std::string_view original) {
+    const auto left = std::find_if_not(original.cbegin(), original.cend(),
+                                       ToLambda(std::isspace));
+    if (left == original.cend())
+        return {};
+
+    const auto right = std::find_if_not(original.crbegin(), original.crend(),
+                                        ToLambda(std::isspace)).base();
+
+    return std::string_view(left, std::distance(left, right) + 1);
+}
+
 
 class Joiner {
     char m_delimiter{};
