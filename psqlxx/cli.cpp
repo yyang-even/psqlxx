@@ -64,7 +64,7 @@ const auto createBuiltinCommandGroup(const std::vector<CommandGroup> &command_gr
     CommandGroup group{"builtin", "quit, exit, help and builtin editline commands"};
 
     group.AddOptions()
-    ({"quit", "exit", R"(\q)"}, {}, &Quit, "To quit")
+    ({"quit", "exit", "@q"}, {}, &Quit, "To quit")
     ({"help"}, {"[GROUP]"}, [&command_groups](const auto words, const auto word_count) {
         return help(command_groups, words, word_count);
     }, "Print help summary or for an individual group")
