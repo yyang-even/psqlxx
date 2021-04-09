@@ -64,6 +64,7 @@ const auto createBuiltinCommandGroup(const std::vector<CommandGroup> &command_gr
     CommandGroup group{"builtin", "quit, exit, help and builtin editline commands"};
 
     group.AddOptions()
+    // '@' is a better command prefix when using Tokenizer, as it escapes '\'.
     ({"quit", "exit", "@q"}, {}, &Quit, "To quit")
     ({"help"}, {"[GROUP]"}, [&command_groups](const auto words, const auto word_count) {
         return help(command_groups, words, word_count);
@@ -167,14 +168,12 @@ void Cli::Run() const {
             }
         }
 
-        m_line_handler(a_line);
-
         tok_reset(m_tokenizer);
     }
 }
 
-void Cli::RegisterLineHandler(const LineHandlerType handler) {
-    m_line_handler = handler;
+void Cli::RegisterCommandGroup(CommandGroup group) {
+    m_command_groups.push_back(std::move(group));
 }
 
 }//namespace psqlxx

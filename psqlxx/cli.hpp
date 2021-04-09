@@ -34,8 +34,6 @@ struct CliOptions {
 
 
 class Cli {
-    using LineHandlerType = std::function<void(const char *)>;
-
     const CliOptions m_options;
 
     std::vector<CommandGroup> m_command_groups;
@@ -47,8 +45,6 @@ class Cli {
 
     Tokenizer *m_tokenizer = nullptr;
 
-    LineHandlerType m_line_handler;
-
 public:
     Cli(const char *program_path, CliOptions options);
     Cli(const Cli &) = delete;
@@ -57,7 +53,7 @@ public:
 
     void Config() const;
     void Run() const;
-    void RegisterLineHandler(const LineHandlerType handler);
+    void RegisterCommandGroup(CommandGroup group);
 };
 
 }//namespace psqlxx
