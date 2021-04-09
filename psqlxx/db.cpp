@@ -16,7 +16,7 @@ using namespace psqlxx;
 namespace {
 
 [[nodiscard]]
-const std::string getTransactionName() {
+const std::string_view getTransactionName() {
     return "psqlxx";
 }
 
@@ -47,6 +47,31 @@ const auto overridePasswordFromPrompt(std::string connection_string) {
 [[nodiscard]]
 const auto concatenateKeyValue(std::string key, std::string value) {
     return Joiner{'='}(std::move(key), std::move(value));
+}
+
+[[nodiscard]]
+auto doTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
+                   const char **words, const int word_count) {
+    std::stringstream query;
+    for (int i = 0; i < word_count; ++i) {
+        query << words[i] << " ";
+    }
+
+    return ToCommandResult(DoTransaction(connection_ptr, query.str()));
+}
+
+[[nodiscard]]
+const std::string_view buildListDBsSql() {
+    return R"(
+SELECT d.datname as "Name",
+       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
+       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
+       d.datcollate as "Collate",
+       d.datctype as "Ctype",
+       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
+FROM pg_catalog.pg_database d
+ORDER BY 1;
+)";
 }
 
 }
@@ -163,17 +188,24 @@ ComposeDbParameter(const DbParameterKey key_enum, std::string value) {
     return concatenateKeyValue(DB_PARAMETER_KEY_MAP.at(key_enum), std::move(value));
 }
 
-const std::string BuildListDBsSql() {
-    return R"(
-SELECT d.datname as "Name",
-       pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
-       pg_catalog.pg_encoding_to_char(d.encoding) as "Encoding",
-       d.datcollate as "Collate",
-       d.datctype as "Ctype",
-       pg_catalog.array_to_string(d.datacl, E'\n') AS "Access privileges"
-FROM pg_catalog.pg_database d
-ORDER BY 1;
-)";
+bool ListDbs(const std::shared_ptr<pqxx::connection> connection_ptr) {
+        const auto list_dbs_sql = buildListDBsSql();
+        return DoTransaction(connection_ptr, list_dbs_sql);
+}
+
+const CommandGroup CreatePsqlxxCommandGroup(const std::shared_ptr<pqxx::connection> connection_ptr) {
+    CommandGroup group{"psqlxx", "psqlxx commands"};
+
+    group.AddOptions()
+    ({""}, {VARIADIC_ARGUMENT}, [connection_ptr](const auto words, const auto word_count) {
+        return doTransaction(connection_ptr, words, word_count);
+     }, "To execute query")
+    ({"@l"}, {}, [connection_ptr](const auto, const auto) {
+        return ToCommandResult(ListDbs(connection_ptr));
+    }, "List databases")
+    ;
+
+    return group;
 }
 
 }//namespace psqlxx
