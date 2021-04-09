@@ -49,13 +49,12 @@ int main(int argc, char **argv) {
     }
 
     if (connection_options.list_DBs_and_exit) {
-        const auto list_dbs_sql = BuildListDBsSql();
-        return toExitCode(DoTransaction(my_connection, list_dbs_sql.c_str()));
+        return toExitCode(ListDbs(my_connection));
     }
 
     if (not connection_options.commands.empty()) {
         for (const auto &a_command : connection_options.commands) {
-            if (not DoTransaction(my_connection, a_command.c_str())) {
+            if (not DoTransaction(my_connection, a_command)) {
                 return EXIT_FAILURE;
             }
         }
@@ -65,9 +64,7 @@ int main(int argc, char **argv) {
 
     Cli my_cli{argv[0], CliOptions{}};
     my_cli.Config();
-    my_cli.RegisterLineHandler([my_connection](const char *sql_cmd) {
-        return DoTransaction(my_connection, sql_cmd);
-    });
+    my_cli.RegisterCommandGroup(CreatePsqlxxCommandGroup(my_connection));
     my_cli.Run();
 
     return EXIT_SUCCESS;

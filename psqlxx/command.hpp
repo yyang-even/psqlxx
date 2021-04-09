@@ -15,6 +15,11 @@ enum class CommandResult {
     exit,
 };
 
+[[nodiscard]]
+inline auto ToCommandResult(const bool success) {
+    return success ? CommandResult::success : CommandResult::failure;
+}
+
 
 class Command {
 public:

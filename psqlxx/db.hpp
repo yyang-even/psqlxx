@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <psqlxx/command.hpp>
+
 
 namespace cxxopts {
 
@@ -67,6 +69,10 @@ const std::string
 ComposeDbParameter(const DbParameterKey key_enum, std::string value);
 
 [[nodiscard]]
-const std::string BuildListDBsSql();
+bool ListDbs(const std::shared_ptr<pqxx::connection> connection_ptr);
+
+[[nodiscard]]
+const CommandGroup
+CreatePsqlxxCommandGroup(const std::shared_ptr<pqxx::connection> connection_ptr);
 
 }//namespace psqlxx
