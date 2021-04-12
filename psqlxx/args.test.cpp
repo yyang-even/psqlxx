@@ -19,7 +19,7 @@ public:
         std::size_t i = 0;
         for (auto iter = args.begin(); iter != args.end(); ++i, ++iter) {
             m_args_buffer.emplace_back(*iter);
-            m_argv.get()[i] = const_cast<char *>(m_args_buffer.back().c_str());
+            m_argv.get()[i] = m_args_buffer.back().data();
         }
     }
 
