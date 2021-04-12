@@ -200,7 +200,7 @@ CreatePsqlxxCommandGroup(const std::shared_ptr<pqxx::connection> connection_ptr)
     group.AddOptions()
     ({""}, {VARIADIC_ARGUMENT}, [connection_ptr](const auto words, const auto word_count) {
         return doTransaction(connection_ptr, words, word_count);
-     }, "To execute query" )
+     }, "To execute query")
     ({"@l"}, {}, [connection_ptr](const auto, const auto) {
         return ToCommandResult(ListDbs(connection_ptr));
     }, "List databases")
