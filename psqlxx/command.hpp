@@ -9,10 +9,10 @@
 namespace psqlxx {
 
 enum class CommandResult {
+    exit,
     success,
     failure,
     unknown,
-    exit,
 };
 
 [[nodiscard]]

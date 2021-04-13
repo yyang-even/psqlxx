@@ -129,10 +129,11 @@ void Cli::Config() const {
     history(m_history, m_ev.get(), H_LOAD, m_options.history_file.c_str());
 }
 
-void Cli::Run() const {
+bool Cli::Run() const {
     const char *a_line = nullptr;
     int line_length = 0;
     bool previous_line_completed = true;
+    bool last_result = true;
 
     while ((a_line = el_gets(m_el, &line_length)) and line_length != 0)  {
         // Ignore empty lines
@@ -145,6 +146,7 @@ void Cli::Run() const {
         const auto tokenize_result = tok_str(m_tokenizer, a_line, &word_count, &words);
         if (tokenize_result < 0) {
             std::cerr << "Internal error." << std::endl;
+            last_result = false;
             continue;
         }
         const auto current_line_completed = not(tokenize_result > 0);
@@ -162,14 +164,19 @@ void Cli::Run() const {
         for (const auto &a_group : m_command_groups) {
             const auto result = a_group(words, word_count);
             if (result == CommandResult::exit) {
-                return;
-            } else if (result != CommandResult::unknown) {
-                break;
+                return true;
+            } else {
+                last_result = (result == CommandResult::success);
+                if (result != CommandResult::unknown) {
+                    break;
+                }
             }
         }
 
         tok_reset(m_tokenizer);
     }
+
+    return last_result;
 }
 
 void Cli::RegisterCommandGroup(CommandGroup group) {

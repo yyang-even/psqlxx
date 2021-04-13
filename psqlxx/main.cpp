@@ -65,7 +65,6 @@ int main(int argc, char **argv) {
     Cli my_cli{argv[0], CliOptions{}};
     my_cli.Config();
     my_cli.RegisterCommandGroup(CreatePsqlxxCommandGroup(my_connection));
-    my_cli.Run();
 
-    return EXIT_SUCCESS;
+    return toExitCode(my_cli.Run());
 }
