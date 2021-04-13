@@ -52,7 +52,8 @@ public:
     ~Cli();
 
     void Config() const;
-    void Run() const;
+    [[nodiscard]]
+    bool Run() const;
     void RegisterCommandGroup(CommandGroup group);
 };
 
