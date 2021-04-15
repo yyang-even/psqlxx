@@ -35,6 +35,8 @@ public:
             ArgumentArrayType arguments,
             ActionType action,
             DescriptionType description);
+    Command(const Command &) = delete;
+    Command(Command &&) = delete;
 
     void Help() const;
     [[nodiscard]]
@@ -122,4 +124,5 @@ bool validCommand(const Command::NameArrayType &names,
 }//namespace internal
 
 inline constexpr Command::ArgumentType VARIADIC_ARGUMENT = "...";
+
 }//namespace psqlxx

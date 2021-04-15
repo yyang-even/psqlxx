@@ -22,6 +22,8 @@ public:
             m_argv.get()[i] = m_args_buffer.back().data();
         }
     }
+    ArgvBuilder(const ArgvBuilder &) = delete;
+    ArgvBuilder(ArgvBuilder &&) = delete;
 
     [[nodiscard]]
     char **argv() const {
