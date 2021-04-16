@@ -21,7 +21,7 @@ inline auto validName(const Command::NameType &name) {
         return true;
     }
 
-    const std::regex name_pattern(R"([a-zA-Z]+)");
+    const std::regex name_pattern(R"(@?[a-zA-Z]+)");
     return std::regex_match(name.data(), name_pattern);
 }
 
@@ -31,7 +31,11 @@ inline auto validArgument(const Command::ArgumentType &argument) {
         return false;
     }
 
-    const std::regex argument_pattern(R"([A-Z]+)");
+    if (argument == VARIADIC_ARGUMENT) {
+        return true;
+    }
+
+    const std::regex argument_pattern(R"(\[?[A-Z]+\]?)");
     return std::regex_match(argument.data(), argument_pattern);
 }
 
