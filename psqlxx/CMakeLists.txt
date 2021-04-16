@@ -41,6 +41,7 @@ add_test(NAME psqlxx.main.can_display_version COMMAND psqlxx_main --version)
 enable_auto_test_command(psqlxx_main ^psqlxx.main)
 
 discover_gtest_for(args psqlxx::psqlxx)
+discover_gtest_for(command psqlxx::psqlxx)
 discover_gtest_for(db psqlxx::psqlxx)
 discover_gtest_for(string_utils)
 
