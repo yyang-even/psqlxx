@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <string>
@@ -38,6 +39,8 @@ class Cli {
 
     std::vector<CommandGroup> m_command_groups;
 
+    mutable std::atomic<bool> m_signal_received{false};
+
     EditLine *m_el = nullptr;
 
     History *m_history = nullptr;
@@ -45,6 +48,7 @@ class Cli {
 
     Tokenizer *m_tokenizer = nullptr;
 
+    void handleSignal() const;
 public:
     Cli(const char *program_path, CliOptions options);
     Cli(const Cli &) = delete;
