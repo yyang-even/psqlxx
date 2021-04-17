@@ -1,6 +1,7 @@
 #include <psqlxx/cli.hpp>
 
 #include <cassert>
+#include <csignal>
 
 #include <filesystem>
 #include <iostream>
@@ -77,6 +78,14 @@ const auto createBuiltinCommandGroup(const std::vector<CommandGroup> &command_gr
     return group;
 }
 
+std::function<void(int)> g_signal_handler;
+
+void signalHandler(int sig) {
+    if (g_signal_handler) {
+        g_signal_handler(sig);
+    }
+}
+
 }
 
 
@@ -85,6 +94,16 @@ namespace psqlxx {
 CliOptions::CliOptions(): history_file(getDefaultHistoryFile()) {
 }
 
+
+void Cli::handleSignal() const {
+    el_reset(m_el);
+    tok_reset(m_tokenizer);
+
+    std::cout << "Type \"quit\", \"exit\", or \"@q\" to quit." << std::endl;
+    el_push(m_el, "\n");
+
+    m_signal_received = true;
+}
 
 Cli::Cli(const char *program_path, CliOptions options) : m_options(std::move(options)),
     m_el(el_init(program_path, stdin, stdout, stderr)),
@@ -102,9 +121,16 @@ Cli::~Cli() {
     history_end(m_history);
 
     el_end(m_el);
+
+    g_signal_handler = {};
 }
 
 void Cli::Config() const {
+    g_signal_handler = [this](int) {
+        handleSignal();
+    };
+    (void) std::signal(SIGINT, signalHandler);
+
     history(m_history, m_ev.get(), H_SETSIZE, m_options.history_size);
     history(m_history, m_ev.get(), H_SETUNIQUE, 1);
 
@@ -136,6 +162,11 @@ bool Cli::Run() const {
     bool last_result = true;
 
     while ((a_line = el_gets(m_el, &line_length)) and line_length != 0)  {
+        if (m_signal_received.load()) {
+            previous_line_completed = true;
+            m_signal_received = false;
+        }
+
         // Ignore empty lines
         if (previous_line_completed && line_length == 1) {
             continue;
