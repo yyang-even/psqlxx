@@ -130,8 +130,8 @@ void Cli::Config() const {
     g_signal_handler = [this](int) {
         handleSignal();
     };
-    (void) std::signal(SIGINT, signalHandler);  // Handle Ctrl+c
-    (void) std::signal(SIGQUIT, signalHandler); // Handle Ctrl+\
+    (void) std::signal(SIGINT, signalHandler);  // Handle 'Ctrl+c'
+    (void) std::signal(SIGQUIT, signalHandler); // Handle 'Ctrl+\'
 
     history(m_history, m_ev.get(), H_SETSIZE, m_options.history_size);
     history(m_history, m_ev.get(), H_SETUNIQUE, 1);
