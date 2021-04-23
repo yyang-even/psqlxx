@@ -8,7 +8,8 @@
 namespace psqlxx {
 
 [[nodiscard]]
-static inline auto StartsWith(const std::string &str, const std::string_view prefix) {
+static inline auto
+StartsWith(const std::string_view str, const std::string_view prefix) {
     return str.rfind(prefix, 0) == 0;
 }
 
