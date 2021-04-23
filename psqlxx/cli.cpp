@@ -80,7 +80,7 @@ const auto createBuiltinCommandGroup(const std::vector<CommandGroup> &command_gr
 
 std::function<void(int)> g_signal_handler;
 
-void signalHandler(int sig) {
+extern "C" void signalHandler(int sig) {
     if (g_signal_handler) {
         g_signal_handler(sig);
     }
