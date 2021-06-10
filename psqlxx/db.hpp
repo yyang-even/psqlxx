@@ -34,12 +34,31 @@ const std::string overridePassword(std::string connection_string, std::string pa
 }//namespace internal
 
 struct DbOptions {
-    std::string base_connection_string;
     std::vector<std::string> commands;
+
+    std::string base_connection_string;
+    std::string command_file;
 
     bool prompt_for_password = true;
 
     bool list_DBs_and_exit = false;
+
+    [[nodiscard]]
+    bool CommandsFromFile() const {
+        return not command_file.empty();
+    }
+
+    [[nodiscard]]
+    const auto OpenCommandFile() const {
+        std::unique_ptr<FILE, decltype(&fclose)>
+        command_file_ptr(fopen(command_file.c_str(), "r"), &fclose);
+        if (not command_file_ptr) {
+            perror(("Failed to open command file: '" + command_file + "'.").c_str());
+        }
+        return command_file_ptr;
+    }
+
+private:
 };
 
 
