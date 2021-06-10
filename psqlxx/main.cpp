@@ -31,8 +31,24 @@ const auto handleOptions(cxxopts::Options &options, const int argc, char **argv)
     return HandleDbOptions(results.value());
 }
 
+[[nodiscard]]
 constexpr auto toExitCode(const bool success) {
     return success ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+[[nodiscard]]
+const std::unique_ptr<FILE, decltype(&fclose)>
+OpenCommandFile(const std::string &command_file) {
+    FILE *file_ptr{};
+    if (not command_file.empty()) {
+        file_ptr = fopen(command_file.c_str(), "r");
+        if (not file_ptr) {
+            perror(("Failed to open command file '" + command_file + "'").c_str());
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return {file_ptr, &fclose};
 }
 
 }
@@ -62,7 +78,9 @@ int main(int argc, char **argv) {
         return EXIT_SUCCESS;
     }
 
-    Cli my_cli{argv[0], CliOptions{}};
+    const auto command_file_ptr = OpenCommandFile(connection_options.command_file);
+
+    Cli my_cli{argv[0], CliOptions{command_file_ptr.get()}};
     my_cli.Config();
     my_cli.RegisterCommandGroup(CreatePsqlxxCommandGroup(my_connection));
 

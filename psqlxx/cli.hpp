@@ -24,13 +24,17 @@ namespace psqlxx {
 
 struct CliOptions {
     std::string editor = "vi";
+
     std::string history_file;
 
     const char *editrc_file = nullptr;
 
+    FILE *input_file{};
+
     int history_size = 10000;
 
-    CliOptions();
+
+    explicit CliOptions(FILE *f_in);
 };
 
 

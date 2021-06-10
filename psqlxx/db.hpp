@@ -34,8 +34,11 @@ const std::string overridePassword(std::string connection_string, std::string pa
 }//namespace internal
 
 struct DbOptions {
-    std::string base_connection_string;
     std::vector<std::string> commands;
+
+    std::string command_file;
+
+    std::string base_connection_string;
 
     bool prompt_for_password = true;
 

@@ -158,11 +158,14 @@ void AddDbOptions(cxxopts::Options &options) {
      cxxopts::value<bool>()->default_value("false"))
     ("c,command", "run only single command (SQL or internal) and exit",
      cxxopts::value<std::vector<std::string>>(), "COMMAND")
+    ("f,command-file", "execute commands from file, then exit",
+     cxxopts::value<std::string>()->default_value(""))
     ;
 }
 
 const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options) {
-    DbOptions options;
+    DbOptions options{};
+
     options.base_connection_string = parsed_options["connection-string"].as<std::string>();
     options.prompt_for_password = not parsed_options["no-password"].as<bool>();
 
@@ -171,6 +174,8 @@ const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options) {
     if (parsed_options.count("command")) {
         options.commands = parsed_options["command"].as<std::vector<std::string>>();
     }
+
+    options.command_file = parsed_options["command-file"].as<std::string>();
 
     return options;
 }

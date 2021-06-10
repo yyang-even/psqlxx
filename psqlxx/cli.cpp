@@ -91,7 +91,8 @@ extern "C" void signalHandler(int sig) {
 
 namespace psqlxx {
 
-CliOptions::CliOptions(): history_file(getDefaultHistoryFile()) {
+CliOptions::CliOptions(FILE *f_in): history_file(getDefaultHistoryFile()),
+    input_file(f_in ? f_in : stdin) {
 }
 
 
@@ -107,7 +108,7 @@ Press <Enter> to continue: )" << std::flush;
 }
 
 Cli::Cli(const char *program_path, CliOptions options) : m_options(std::move(options)),
-    m_el(el_init(program_path, stdin, stdout, stderr)),
+    m_el(el_init(program_path, options.input_file, stdout, stderr)),
     m_history(history_init()),
     m_ev(new HistEvent()),
     m_tokenizer(tok_init(nullptr)) {
