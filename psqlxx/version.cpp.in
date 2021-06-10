@@ -1,5 +1,6 @@
 #include <psqlxx/version.hpp>
 
+
 namespace psqlxx {
 
 const std::string_view GetVersion() {

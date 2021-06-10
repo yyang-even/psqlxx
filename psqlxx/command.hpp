@@ -16,7 +16,7 @@ enum class CommandResult {
 };
 
 [[nodiscard]]
-inline auto ToCommandResult(const bool success) {
+static inline auto ToCommandResult(const bool success) {
     return success ? CommandResult::success : CommandResult::failure;
 }
 
@@ -105,7 +105,7 @@ public:
 
 
 [[nodiscard]]
-inline constexpr auto Quit(const char **, const int) {
+static inline constexpr auto Quit(const char **, const int) {
     return CommandResult::exit;
 }
 
