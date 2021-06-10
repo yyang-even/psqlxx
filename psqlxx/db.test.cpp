@@ -17,7 +17,7 @@ TEST(MakeConnectionTests, ReturnNullptrIfGivenBadConnectionString) {
 }
 
 
-const auto SIMPLE_PASSWORD = "mysecret";
+constexpr auto SIMPLE_PASSWORD = "mysecret";
 const auto SIMPLE_PASSWORD_PARAMETER =
     ComposeDbParameter(DbParameterKey::password, SIMPLE_PASSWORD);
 

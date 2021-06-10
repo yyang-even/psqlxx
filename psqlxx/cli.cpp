@@ -27,9 +27,9 @@ inline const std::string getDefaultHistoryFile() {
 }
 
 [[nodiscard]]
-auto help(const std::vector<CommandGroup> &command_groups,
-          const char **words,
-          const int word_count) {
+inline auto help(const std::vector<CommandGroup> &command_groups,
+                 const char **words,
+                 const int word_count) {
     assert(words);
     assert(word_count > 0);
 
@@ -41,9 +41,9 @@ auto help(const std::vector<CommandGroup> &command_groups,
 }
 
 [[nodiscard]]
-auto doEditlineBuiltinCommands(EditLine *const el,
-                               const char **words,
-                               const int word_count) {
+inline auto doEditlineBuiltinCommands(EditLine *const el,
+                                      const char **words,
+                                      const int word_count) {
     assert(el);
     assert(words);
     assert(word_count > 0);
@@ -60,8 +60,9 @@ auto doEditlineBuiltinCommands(EditLine *const el,
 }
 
 [[nodiscard]]
-const auto createBuiltinCommandGroup(const std::vector<CommandGroup> &command_groups,
-                                     EditLine *const el) {
+inline const auto
+createBuiltinCommandGroup(const std::vector<CommandGroup> &command_groups,
+                          EditLine *const el) {
     CommandGroup group{"builtin", "quit, exit, help and builtin editline commands"};
 
     group.AddOptions()

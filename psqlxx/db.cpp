@@ -16,7 +16,7 @@ using namespace psqlxx;
 namespace {
 
 [[nodiscard]]
-const std::string_view getTransactionName() {
+inline const std::string_view getTransactionName() {
     return "psqlxx";
 }
 
@@ -39,19 +39,22 @@ void printResult(const pqxx::result &a_result) {
 }
 
 [[nodiscard]]
-const auto overridePasswordFromPrompt(std::string connection_string) {
+inline const auto
+overridePasswordFromPrompt(std::string connection_string) {
     const auto password = getpass("Password: ");
     return internal::overridePassword(std::move(connection_string), password);
 }
 
 [[nodiscard]]
-const auto concatenateKeyValue(std::string key, std::string value) {
+inline const auto
+concatenateKeyValue(std::string key, std::string value) {
     return Joiner{'='}(std::move(key), std::move(value));
 }
 
 [[nodiscard]]
-auto doTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
-                   const char **words, const int word_count) {
+inline auto
+doTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
+              const char **words, const int word_count) {
     std::stringstream query;
     for (int i = 0; i < word_count; ++i) {
         query << words[i] << " ";
@@ -61,7 +64,7 @@ auto doTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
 }
 
 [[nodiscard]]
-const std::string_view buildListDBsSql() {
+inline const std::string_view buildListDBsSql() {
     return R"(
 SELECT d.datname as "Name",
        pg_catalog.pg_get_userbyid(d.datdba) as "Owner",

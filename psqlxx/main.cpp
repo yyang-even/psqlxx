@@ -11,7 +11,7 @@ using namespace psqlxx;
 namespace {
 
 [[nodiscard]]
-const auto buildOptions() {
+inline const auto buildOptions() {
     auto options = CreateBaseOptions();
 
     AddDbOptions(options);
@@ -20,7 +20,8 @@ const auto buildOptions() {
 }
 
 [[nodiscard]]
-const auto handleOptions(cxxopts::Options &options, const int argc, char **argv) {
+inline const auto
+handleOptions(cxxopts::Options &options, const int argc, char **argv) {
     const auto results = ParseOptions(options, argc, argv);
     if (not results) {
         exit(EXIT_FAILURE);
@@ -32,12 +33,12 @@ const auto handleOptions(cxxopts::Options &options, const int argc, char **argv)
 }
 
 [[nodiscard]]
-constexpr auto toExitCode(const bool success) {
+inline constexpr auto toExitCode(const bool success) {
     return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 [[nodiscard]]
-const std::unique_ptr<FILE, decltype(&fclose)>
+inline const std::unique_ptr<FILE, decltype(&fclose)>
 OpenCommandFile(const std::string &command_file) {
     FILE *file_ptr{};
     if (not command_file.empty()) {
