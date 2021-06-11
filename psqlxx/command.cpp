@@ -79,7 +79,7 @@ Command::Command(NameArrayType n,
     m_arguments(std::move(arguments)),
     m_action(std::move(action)),
     m_description(std::move(description)) {
-    for (const auto &an_argument : arguments) {
+    for (const auto an_argument : m_arguments) {
         if (an_argument == VARIADIC_ARGUMENT) {
             m_variadic_argument = true;
             break;
