@@ -1,6 +1,7 @@
 #include <psqlxx/db.hpp>
 #include <psqlxx/string_utils.hpp>
 
+#include <pqxx/pqxx>
 #include <gtest/gtest.h>
 
 
@@ -8,12 +9,12 @@ using namespace psqlxx;
 
 
 TEST(MakeConnectionTests, ReturnNullptrIfGivenBadConnectionString) {
-    DbOptions options;
+    ConnectionOptions options;
     options.prompt_for_password = true;
     options.base_connection_string =
         ComposeDbParameter(DbParameterKey::dbname, "no_such_db");
 
-    ASSERT_FALSE(MakeConnection(options));
+    ASSERT_FALSE(internal::makeConnection(options));
 }
 
 

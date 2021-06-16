@@ -20,24 +20,6 @@ inline const std::string_view getTransactionName() {
     return "psqlxx";
 }
 
-void printResult(const pqxx::result &a_result) {
-    if (a_result.columns() > 0) {
-        for (decltype(a_result.columns()) i = 0; i < a_result.columns() - 1; ++i) {
-            std::cout << a_result.column_name(i) << " | ";
-        }
-        std::cout << a_result.column_name(a_result.columns() - 1) << std::endl;
-
-        for (const auto &row : a_result) {
-            if (not row.empty()) {
-                for (auto iter = row.cbegin(); iter != std::prev(row.cend()); ++iter) {
-                    std::cout << *iter << " | ";
-                }
-                std::cout << row.back() << std::endl;
-            }
-        }
-    }
-}
-
 [[nodiscard]]
 inline const auto
 overridePasswordFromPrompt(std::string connection_string) {
@@ -53,14 +35,14 @@ concatenateKeyValue(std::string key, std::string value) {
 
 [[nodiscard]]
 inline auto
-doTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
+doTransaction(const DbProxy &proxy,
               const char **words, const int word_count) {
     std::stringstream query;
     for (int i = 0; i < word_count; ++i) {
         query << words[i] << " ";
     }
 
-    return ToCommandResult(DoTransaction(connection_ptr, query.str()));
+    return ToCommandResult(proxy.DoTransaction(query.str()));
 }
 
 [[nodiscard]]
@@ -75,6 +57,26 @@ SELECT d.datname as "Name",
 FROM pg_catalog.pg_database d
 ORDER BY 1;
 )";
+}
+
+void addConnectionOptions(cxxopts::Options &options) {
+    options.add_options("DB Connection")
+    ("S,connection-string",
+     "PQ connection string. Refer to the libpq connect call for a complete definition of what may go into the connect string. By default the client will try to connect to a server running on the local machine.",
+     cxxopts::value<std::string>()->default_value(""))
+    ("w,no-password", "never prompt for password",
+     cxxopts::value<bool>()->default_value("false"))
+    ;
+}
+
+[[nodiscard]]
+const auto handleConnectionOptions(const cxxopts::ParseResult &parsed_options) {
+    ConnectionOptions options{};
+
+    options.base_connection_string = parsed_options["connection-string"].as<std::string>();
+    options.prompt_for_password = not parsed_options["no-password"].as<bool>();
+
+    return options;
 }
 
 }
@@ -105,17 +107,15 @@ const std::string overridePassword(std::string connection_string,
                                                   std::move(password));
 }
 
-}//namespace internal
-
-const std::shared_ptr<pqxx::connection> MakeConnection(const DbOptions &options) {
+std::unique_ptr<pqxx::connection> makeConnection(const ConnectionOptions &options) {
     for (bool original_tried = false; true; original_tried = true) {
         try {
             if (original_tried and options.prompt_for_password) {
                 const auto connection_string =
                     overridePasswordFromPrompt(options.base_connection_string);
-                return std::make_shared<pqxx::connection>(connection_string);
+                return std::make_unique<pqxx::connection>(connection_string);
             } else {
-                return std::make_shared<pqxx::connection>(options.base_connection_string);
+                return std::make_unique<pqxx::connection>(options.base_connection_string);
             }
         } catch (const pqxx::broken_connection &e) {
             if (original_tried or not strstr(e.what(), "no password supplied")) {
@@ -128,35 +128,47 @@ const std::shared_ptr<pqxx::connection> MakeConnection(const DbOptions &options)
     return {};
 }
 
-bool DoTransaction(const std::shared_ptr<pqxx::connection> connection_ptr,
-                   const std::string_view sql_cmd) {
-    assert(connection_ptr);
+}//namespace internal
 
-    return pqxx::perform([connection_ptr, sql_cmd] {
+DbProxy::DbProxy(DbProxyOptions options): m_options(std::move(options)),
+    m_out(std::cout.rdbuf()){
+    m_connection = internal::makeConnection(m_options.connection_options);
+
+    if (not m_options.format_options.out_file.empty()) {
+        m_out_file.open(m_options.format_options.out_file, std::ofstream::out);
+        if (m_out_file) {
+            m_out.rdbuf(m_out_file.rdbuf());
+        } else {
+            std::cerr << "Failed to open out file '" <<
+                      m_options.format_options.out_file <<
+                      "': " << strerror(errno) << std::endl;
+        }
+    }
+}
+
+bool DbProxy::DoTransaction(const std::string_view sql_cmd) const {
+    assert(*this);
+
+    return pqxx::perform([this, sql_cmd] {
         try {
-            pqxx::work w(*connection_ptr, getTransactionName());
+            pqxx::work w(*(m_connection), getTransactionName());
 
             auto r = w.exec(sql_cmd);
 
-            printResult(r);
+            PrintResult(r, m_options.format_options, m_out);
             return true;
 
         } catch (const std::exception &e) {
-            std::cerr << e.what()
-                      << std::endl;
+            std::cerr << e.what() << std::endl;
             return false;
         }
     });
 }
 
-void AddDbOptions(cxxopts::Options &options) {
-    options.add_options("PQXX")
-    ("S,connection-string",
-     "PQ connection string. Refer to the libpq connect call for a complete definition of what may go into the connect string. By default the client will try to connect to a server running on the local machine.",
-     cxxopts::value<std::string>()->default_value(""))
-    ("w,no-password", "never prompt for password",
-     cxxopts::value<bool>()->default_value("false"))
+void AddDbProxyOptions(cxxopts::Options &options) {
+    addConnectionOptions(options);
 
+    options.add_options("Command")
     ("l,list-dbs", "list available databases, then exit",
      cxxopts::value<bool>()->default_value("false"))
     ("c,command", "run only single command (SQL or internal) and exit",
@@ -164,13 +176,13 @@ void AddDbOptions(cxxopts::Options &options) {
     ("f,command-file", "execute commands from file, then exit",
      cxxopts::value<std::string>()->default_value(""))
     ;
+
+    AddFormatOptions(options);
 }
 
-const DbOptions HandleDbOptions(const cxxopts::ParseResult &parsed_options) {
-    DbOptions options{};
-
-    options.base_connection_string = parsed_options["connection-string"].as<std::string>();
-    options.prompt_for_password = not parsed_options["no-password"].as<bool>();
+const DbProxyOptions HandleDbProxyOptions(const cxxopts::ParseResult &parsed_options) {
+    DbProxyOptions options{handleConnectionOptions(parsed_options),
+        HandleFormatOptions(parsed_options)};
 
     options.list_DBs_and_exit = parsed_options["list-dbs"].as<bool>();
 
@@ -196,21 +208,22 @@ ComposeDbParameter(const DbParameterKey key_enum, std::string value) {
     return concatenateKeyValue(DB_PARAMETER_KEY_MAP.at(key_enum), std::move(value));
 }
 
-bool ListDbs(const std::shared_ptr<pqxx::connection> connection_ptr) {
+bool ListDbs(const DbProxy &db_proxy) {
     const auto list_dbs_sql = buildListDBsSql();
-    return DoTransaction(connection_ptr, list_dbs_sql);
+    return db_proxy.DoTransaction(list_dbs_sql);
 }
 
 const CommandGroup
-CreatePsqlxxCommandGroup(const std::shared_ptr<pqxx::connection> connection_ptr) {
+CreatePsqlxxCommandGroup(const DbProxy &proxy) {
     CommandGroup group{"psqlxx", "psqlxx commands"};
 
     group.AddOptions()
-    ({""}, {VARIADIC_ARGUMENT}, [connection_ptr](const auto words, const auto word_count) {
-        return doTransaction(connection_ptr, words, word_count);
+    ({""}, {VARIADIC_ARGUMENT},
+     [&proxy](const auto words, const auto word_count) {
+        return doTransaction(proxy, words, word_count);
      }, "To execute query")
-    ({"@l"}, {}, [connection_ptr](const auto, const auto) {
-        return ToCommandResult(ListDbs(connection_ptr));
+    ({"@l"}, {}, [&proxy](const auto, const auto) {
+        return ToCommandResult(ListDbs(proxy));
     }, "List databases")
     ;
 
