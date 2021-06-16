@@ -23,6 +23,8 @@ add_library(
     db.cpp
     db.hpp
     exception.hpp
+    formatter.cpp
+    formatter.hpp
     string_utils.hpp)
 add_library(psqlxx::psqlxx ALIAS psqlxx_psqlxx)
 target_link_libraries(
