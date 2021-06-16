@@ -1,5 +1,6 @@
 #include <psqlxx/db.hpp>
 
+#include <pqxx/pqxx>
 #include <gtest/gtest.h>
 
 #include <psqlxx/test_utils.hpp>
@@ -10,27 +11,27 @@ using namespace test;
 
 
 TEST(MakeConnectionTests, ReturnExpectedIfGivenValidParametersWithoutPrompt) {
-    DbOptions options;
+    ConnectionOptions options;
     options.prompt_for_password = false;
     options.base_connection_string = GetViewerConnectionString();
 
-    ASSERT_TRUE(MakeConnection(options));
+    ASSERT_TRUE(internal::makeConnection(options));
 }
 
 TEST(MakeConnectionTests, ReturnExpectedIfGivenValidParametersWithPrompt) {
-    DbOptions options;
+    ConnectionOptions options;
     options.prompt_for_password = true;
     options.base_connection_string = GetViewerConnectionString();
 
-    ASSERT_TRUE(MakeConnection(options));
+    ASSERT_TRUE(internal::makeConnection(options));
 }
 
 TEST(MakeConnectionTests, ReturnNullptrIfGivenWrongPasswordAndNoPrompt) {
-    DbOptions options;
+    ConnectionOptions options;
     options.prompt_for_password = false;
     options.base_connection_string =
         internal::overridePassword(GetViewerConnectionString(), "wrong_password");
 
-    ASSERT_FALSE(MakeConnection(options));
+    ASSERT_FALSE(internal::makeConnection(options));
 }
 

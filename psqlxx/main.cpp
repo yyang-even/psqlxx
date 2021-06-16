@@ -14,7 +14,7 @@ namespace {
 inline const auto buildOptions() {
     auto options = CreateBaseOptions();
 
-    AddDbOptions(options);
+    AddDbProxyOptions(options);
 
     return options;
 }
@@ -29,7 +29,7 @@ handleOptions(cxxopts::Options &options, const int argc, char **argv) {
 
     HandleBaseOptions(options, results.value());
 
-    return HandleDbOptions(results.value());
+    return HandleDbProxyOptions(results.value());
 }
 
 [[nodiscard]]
@@ -44,7 +44,8 @@ OpenCommandFile(const std::string &command_file) {
     if (not command_file.empty()) {
         file_ptr = fopen(command_file.c_str(), "r");
         if (not file_ptr) {
-            perror(("Failed to open command file '" + command_file + "'").c_str());
+            std::cerr << "Failed to open command file '" <<
+                      command_file << "': " << strerror(errno);
             exit(EXIT_FAILURE);
         }
     }
@@ -58,20 +59,20 @@ OpenCommandFile(const std::string &command_file) {
 int main(int argc, char **argv) {
     auto options = buildOptions();
 
-    const auto connection_options = handleOptions(options, argc, argv);
-
-    const auto my_connection = MakeConnection(connection_options);
-    if (not my_connection) {
+    DbProxy db_proxy{handleOptions(options, argc, argv)};
+    if (not db_proxy) {
         return EXIT_FAILURE;
     }
 
-    if (connection_options.list_DBs_and_exit) {
-        return toExitCode(ListDbs(my_connection));
+    const auto &proxy_options = db_proxy.GetOptions();
+
+    if (proxy_options.list_DBs_and_exit) {
+        return toExitCode(ListDbs(db_proxy));
     }
 
-    if (not connection_options.commands.empty()) {
-        for (const auto &a_command : connection_options.commands) {
-            if (not DoTransaction(my_connection, a_command)) {
+    if (not proxy_options.commands.empty()) {
+        for (const auto &a_command : proxy_options.commands) {
+            if (not db_proxy.DoTransaction(a_command)) {
                 return EXIT_FAILURE;
             }
         }
@@ -79,11 +80,11 @@ int main(int argc, char **argv) {
         return EXIT_SUCCESS;
     }
 
-    const auto command_file_ptr = OpenCommandFile(connection_options.command_file);
+    const auto command_file_ptr = OpenCommandFile(proxy_options.command_file);
 
     Cli my_cli{argv[0], CliOptions{command_file_ptr.get()}};
     my_cli.Config();
-    my_cli.RegisterCommandGroup(CreatePsqlxxCommandGroup(my_connection));
+    my_cli.RegisterCommandGroup(CreatePsqlxxCommandGroup(db_proxy));
 
     return toExitCode(my_cli.Run());
 }
