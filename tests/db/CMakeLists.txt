@@ -1,6 +1,7 @@
 find_program(BASH_PROGRAM bash REQUIRED)
 
 configure_file(test_db_defines.sh.in test_db_defines.sh @ONLY)
+configure_file(test_db_defines.py.in test_db_defines.py @ONLY)
 
 add_test(NAME psqlxx.real_db.setup COMMAND ${BASH_PROGRAM}
                                            ${CMAKE_CURRENT_SOURCE_DIR}/test_db_setup.sh)
