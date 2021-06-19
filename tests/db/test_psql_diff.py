@@ -36,7 +36,7 @@ class TestPsqlDiff(unittest.TestCase):
             self.assertEqual(0, os.system(psql_command))
 
             psqlxx_file = os.path.join(tmp_dir_name, self.PSQLXX_OUT_FILENAME)
-            psqlxx_command = f'{test_db_defines.PSQLXX_EXE} "{test_db_defines.SHARED_DB_VIEWER_CONNECTION_STRING}" -l -A -o {psqlxx_file}'
+            psqlxx_command = f'{test_db_defines.PSQLXX_EXE} --connection-string "{test_db_defines.SHARED_DB_VIEWER_CONNECTION_STRING}" -l -A -o {psqlxx_file}'
             self.assertEqual(0, os.system(psqlxx_command))
 
             self.assertFalse(Diff(psql_file, psqlxx_file))
