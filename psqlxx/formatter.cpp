@@ -36,8 +36,12 @@ const FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_op
 }
 
 void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
-                 std::ostream &out) {
+                 std::ostream &out, const std::string_view title) {
     if (a_result.columns() > 0) {
+        if (not title.empty()) {
+            out << title << std::endl;
+        }
+
         for (decltype(a_result.columns()) i = 0; i < a_result.columns() - 1; ++i) {
             out << a_result.column_name(i) << options.delimiter;
         }
@@ -51,6 +55,8 @@ void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
                 out << row.back() << std::endl;
             }
         }
+
+        out << "(" << a_result.size() << " rows)" << std::endl;
     }
 }
 

@@ -146,16 +146,17 @@ DbProxy::DbProxy(DbProxyOptions options): m_options(std::move(options)),
     }
 }
 
-bool DbProxy::DoTransaction(const std::string_view sql_cmd) const {
+bool DbProxy::DoTransaction(const std::string_view sql_cmd,
+        const std::string_view title) const {
     assert(*this);
 
-    return pqxx::perform([this, sql_cmd] {
+    return pqxx::perform([this, sql_cmd, title] {
         try {
             pqxx::work w(*(m_connection), getTransactionName());
 
             auto r = w.exec(sql_cmd);
 
-            PrintResult(r, m_options.format_options, m_out);
+            PrintResult(r, m_options.format_options, m_out, title);
             return true;
 
         } catch (const std::exception &e) {
@@ -210,7 +211,7 @@ ComposeDbParameter(const DbParameterKey key_enum, std::string value) {
 
 bool ListDbs(const DbProxy &db_proxy) {
     const auto list_dbs_sql = buildListDBsSql();
-    return db_proxy.DoTransaction(list_dbs_sql);
+    return db_proxy.DoTransaction(list_dbs_sql, "List of databases");
 }
 
 const CommandGroup
