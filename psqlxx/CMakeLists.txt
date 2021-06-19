@@ -41,6 +41,7 @@ set_target_properties(psqlxx_main PROPERTIES OUTPUT_NAME psqlxx)
 add_test(NAME psqlxx.main.can_display_help COMMAND psqlxx_main --help)
 add_test(NAME psqlxx.main.can_display_version COMMAND psqlxx_main --version)
 enable_auto_test_command(psqlxx_main ^psqlxx.main)
+enable_auto_test_command(psqlxx_main ^psqlxx.real_db.psql_diff$)
 
 discover_gtest_for(args psqlxx::psqlxx)
 discover_gtest_for(command psqlxx::psqlxx)
