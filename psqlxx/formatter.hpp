@@ -32,6 +32,6 @@ const FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_op
 
 
 void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
-                 std::ostream &out);
+                 std::ostream &out, const std::string_view title);
 
 }//namespace psqlxx

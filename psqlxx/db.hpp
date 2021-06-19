@@ -85,7 +85,8 @@ public:
     }
 
     [[nodiscard]]
-    bool DoTransaction(const std::string_view sql_cmd) const;
+    bool DoTransaction(const std::string_view sql_cmd,
+                       const std::string_view title = {}) const;
 };
 
 void AddDbProxyOptions(cxxopts::Options &options);

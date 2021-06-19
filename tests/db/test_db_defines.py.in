@@ -1,3 +1,6 @@
+import os
+
+
 TEST_DB_HOST = "@psqlxx_TEST_DB_HOST@"
 
 SHARED_DB_NAME = "@psqlxx_SHARED_TEST_DB_NAME@"
@@ -5,3 +8,7 @@ SHARED_DB_NAME = "@psqlxx_SHARED_TEST_DB_NAME@"
 SHARED_DB_VIEWER_CONNECTION_STRING = f"host={TEST_DB_HOST} user=@psqlxx_TEST_DB_READ_USER_NAME@ dbname={SHARED_DB_NAME} password=@psqlxx_TEST_DB_READ_USER_PASSWORD@"
 
 SHARED_DB_ADMIN_CONNECTION_STRING = f"host={TEST_DB_HOST} user=@psqlxx_TEST_DB_ADMIN_USER_NAME@ dbname={SHARED_DB_NAME} password=@psqlxx_TEST_DB_ADMIN_USER_PASSWORD@"
+
+BUILD_DIR = "@CMAKE_BINARY_DIR@"
+
+PSQLXX_EXE = os.path.join(BUILD_DIR, "psqlxx", "psqlxx")
