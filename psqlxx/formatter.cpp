@@ -56,7 +56,11 @@ void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
             }
         }
 
-        out << "(" << a_result.size() << " rows)" << std::endl;
+        out << "(" << a_result.size() << " row";
+        if (a_result.size() > 1) {
+            out << 's';
+        }
+        out << ")" << std::endl;
     }
 }
 

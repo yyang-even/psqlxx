@@ -12,3 +12,5 @@ SHARED_DB_ADMIN_CONNECTION_STRING = f"host={TEST_DB_HOST} user=@psqlxx_TEST_DB_A
 BUILD_DIR = "@CMAKE_BINARY_DIR@"
 
 PSQLXX_EXE = os.path.join(BUILD_DIR, "psqlxx", "psqlxx")
+
+SAMPLE_QUERY_FILE = os.path.join("@CMAKE_CURRENT_SOURCE_DIR@", "sample_queries.sql")
