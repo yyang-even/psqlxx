@@ -29,17 +29,23 @@ class TestPsqlDiff(unittest.TestCase):
         cls.PSQL_OUT_FILENAME = "psql.out.txt"
         cls.PSQLXX_OUT_FILENAME = "psqlxx.out.txt"
 
-    def test_DefaultNoAlignAreIdentical(self) -> None:
+    def __psqlDiffTestHelper(self, target_cmd: str) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir_name:
             psql_file = os.path.join(tmp_dir_name, self.PSQL_OUT_FILENAME)
-            psql_command = f'psql "{test_db_defines.SHARED_DB_VIEWER_CONNECTION_STRING}" -l -A -o {psql_file}'
+            psql_command = f'psql "{test_db_defines.SHARED_DB_VIEWER_CONNECTION_STRING}" -o {psql_file} {target_cmd}'
             self.assertEqual(0, os.system(psql_command))
 
             psqlxx_file = os.path.join(tmp_dir_name, self.PSQLXX_OUT_FILENAME)
-            psqlxx_command = f'{test_db_defines.PSQLXX_EXE} "{test_db_defines.SHARED_DB_VIEWER_CONNECTION_STRING}" -l -A -o {psqlxx_file}'
+            psqlxx_command = f'{test_db_defines.PSQLXX_EXE} "{test_db_defines.SHARED_DB_VIEWER_CONNECTION_STRING}" -o {psqlxx_file} {target_cmd}'
             self.assertEqual(0, os.system(psqlxx_command))
 
             self.assertFalse(Diff(psql_file, psqlxx_file))
+
+    def test_DefaultNoAlignListDBAreIdentical(self) -> None:
+        self.__psqlDiffTestHelper("-l -A")
+
+    def test_DefaultNoAlignQueryAreIdentical(self) -> None:
+        self.__psqlDiffTestHelper(f"-A -f {test_db_defines.SAMPLE_QUERY_FILE}")
 
 
 if __name__ == "__main__":
