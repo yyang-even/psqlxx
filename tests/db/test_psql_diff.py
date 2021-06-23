@@ -47,6 +47,12 @@ class TestPsqlDiff(unittest.TestCase):
     def test_DefaultNoAlignQueryAreIdentical(self) -> None:
         self.__psqlDiffTestHelper(f"-A -f {test_db_defines.SAMPLE_QUERY_FILE}")
 
+    def test_CSVListDBAreIdentical(self) -> None:
+        self.__psqlDiffTestHelper(f"--csv -l")
+
+    def test_CSVQueryAreIdentical(self) -> None:
+        self.__psqlDiffTestHelper(f"--csv -f {test_db_defines.SAMPLE_QUERY_FILE}")
+
 
 if __name__ == "__main__":
     unittest.main()
