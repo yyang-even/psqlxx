@@ -4,6 +4,34 @@
 #include <pqxx/pqxx>
 
 
+namespace {
+
+inline auto &printSummary(std::ostream &out, const std::size_t size) {
+    out << "(" << size << " row";
+    if (size > 1) {
+        out << 's';
+    }
+    return out << ")";
+}
+
+inline auto &printField(std::ostream &out, const pqxx::field &a_field,
+                        const std::string_view special_chars) {
+    const auto do_quote = (not special_chars.empty()) and
+                          (a_field.view().find_first_of(special_chars) != std::string_view::npos);
+    if (do_quote) {
+        out << '"';
+    }
+    out << a_field;
+    if (do_quote) {
+        out << '"';
+    }
+
+    return out;
+}
+
+}
+
+
 namespace psqlxx {
 
 void AddFormatOptions(cxxopts::Options &options) {
@@ -28,6 +56,8 @@ const FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_op
 
     if (parsed_options["csv"].as<bool>()) {
         options.delimiter = ",";
+        options.special_chars = options.delimiter + "\n\r";
+        options.show_title_and_summary = false;
     } else {
         options.delimiter = parsed_options["field-separator"].as<std::string>();
     }
@@ -38,7 +68,7 @@ const FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_op
 void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
                  std::ostream &out, const std::string_view title) {
     if (a_result.columns() > 0) {
-        if (not title.empty()) {
+        if (options.show_title_and_summary and (not title.empty())) {
             out << title << std::endl;
         }
 
@@ -50,17 +80,15 @@ void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
         for (const auto &row : a_result) {
             if (not row.empty()) {
                 for (auto iter = row.cbegin(); iter != std::prev(row.cend()); ++iter) {
-                    out << *iter << options.delimiter;
+                    printField(out, *iter, options.special_chars) << options.delimiter;
                 }
-                out << row.back() << std::endl;
+                printField(out, row.back(), options.special_chars) << std::endl;
             }
         }
 
-        out << "(" << a_result.size() << " row";
-        if (a_result.size() > 1) {
-            out << 's';
+        if (options.show_title_and_summary) {
+            printSummary(out, a_result.size()) << std::endl;
         }
-        out << ")" << std::endl;
     }
 }
 

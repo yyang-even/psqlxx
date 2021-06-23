@@ -23,6 +23,9 @@ struct FormatterOptions {
     std::string out_file;
 
     std::string delimiter;
+    std::string special_chars;
+
+    bool show_title_and_summary = true;
 };
 
 void AddFormatOptions(cxxopts::Options &options);
