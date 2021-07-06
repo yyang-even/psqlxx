@@ -16,19 +16,19 @@ using namespace psqlxx;
 namespace {
 
 [[nodiscard]]
-inline const std::string_view getTransactionName() {
+inline std::string_view getTransactionName() {
     return "psqlxx";
 }
 
 [[nodiscard]]
-inline const auto
+inline auto
 overridePasswordFromPrompt(std::string connection_string) {
     const auto password = getpass("Password: ");
     return internal::overridePassword(std::move(connection_string), password);
 }
 
 [[nodiscard]]
-inline const auto
+inline auto
 concatenateKeyValue(std::string key, std::string value) {
     return Joiner{'='}(std::move(key), std::move(value));
 }
@@ -46,7 +46,7 @@ doTransaction(const DbProxy &proxy,
 }
 
 [[nodiscard]]
-inline const std::string_view buildListDBsSql() {
+inline std::string_view buildListDBsSql() {
     return R"(
 SELECT d.datname as "Name",
        pg_catalog.pg_get_userbyid(d.datdba) as "Owner",
@@ -70,7 +70,7 @@ void addConnectionOptions(cxxopts::Options &options) {
 }
 
 [[nodiscard]]
-const auto handleConnectionOptions(const cxxopts::ParseResult &parsed_options) {
+auto handleConnectionOptions(const cxxopts::ParseResult &parsed_options) {
     ConnectionOptions options{};
 
     options.base_connection_string = parsed_options["connection-string"].as<std::string>();
@@ -86,7 +86,7 @@ namespace psqlxx {
 
 namespace internal {
 
-const std::string overridePassword(std::string connection_string,
+std::string overridePassword(std::string connection_string,
                                    std::string password) {
     const auto was_connection_str_empty = connection_string.empty();
 
@@ -181,7 +181,7 @@ void AddDbProxyOptions(cxxopts::Options &options) {
     AddFormatOptions(options);
 }
 
-const DbProxyOptions HandleDbProxyOptions(const cxxopts::ParseResult &parsed_options) {
+DbProxyOptions HandleDbProxyOptions(const cxxopts::ParseResult &parsed_options) {
     DbProxyOptions options{handleConnectionOptions(parsed_options),
         HandleFormatOptions(parsed_options)};
 
@@ -196,7 +196,7 @@ const DbProxyOptions HandleDbProxyOptions(const cxxopts::ParseResult &parsed_opt
     return options;
 }
 
-const std::string
+std::string
 ComposeDbParameter(const DbParameterKey key_enum, std::string value) {
     const static std::unordered_map<DbParameterKey, std::string> DB_PARAMETER_KEY_MAP {
         {DbParameterKey::host, "host"},
@@ -214,7 +214,7 @@ bool ListDbs(const DbProxy &db_proxy) {
     return db_proxy.DoTransaction(list_dbs_sql, "List of databases");
 }
 
-const CommandGroup
+CommandGroup
 CreatePsqlxxCommandGroup(const DbProxy &proxy) {
     CommandGroup group{"psqlxx", "psqlxx commands"};
 

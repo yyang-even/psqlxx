@@ -23,7 +23,7 @@ inline const char *prompt(const std::string &/*user_name = "postgres"*/) {
 }
 
 [[nodiscard]]
-inline const std::string getDefaultHistoryFile() {
+inline std::string getDefaultHistoryFile() {
     fs::path home_dir(getenv("HOME"));
     return (home_dir / ".postgres-client.hist").string();
 }
@@ -62,7 +62,7 @@ inline auto doEditlineBuiltinCommands(EditLine *const el,
 }
 
 [[nodiscard]]
-inline const auto
+inline auto
 createBuiltinCommandGroup(const std::vector<CommandGroup> &command_groups,
                           EditLine *const el) {
     CommandGroup group{"builtin", "quit, exit, help and builtin editline commands"};

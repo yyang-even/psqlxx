@@ -88,7 +88,7 @@ public:
     }
 
     [[nodiscard]]
-    const auto AddOptions() {
+    auto AddOptions() {
         return OptionAdder{*this};
     }
 

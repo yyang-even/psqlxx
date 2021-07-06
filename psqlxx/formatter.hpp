@@ -31,7 +31,7 @@ struct FormatterOptions {
 void AddFormatOptions(cxxopts::Options &options);
 
 [[nodiscard]]
-const FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_options);
+FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_options);
 
 
 void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,

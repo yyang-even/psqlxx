@@ -27,7 +27,7 @@ public:
 
     template <typename First, typename... Args>
     [[nodiscard]]
-    const std::string operator()(First &&first, Args &&... args) const {
+    std::string operator()(First &&first, Args &&... args) const {
         std::stringstream out;
 
         out << first;
