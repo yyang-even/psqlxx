@@ -23,6 +23,8 @@ typedef tokenizer Tokenizer;
 namespace psqlxx {
 
 struct CliOptions {
+    std::string prog_name;
+
     std::string editor = "vi";
 
     std::string history_file;
@@ -34,7 +36,7 @@ struct CliOptions {
     int history_size = 10000;
 
 
-    explicit CliOptions(FILE *f_in);
+    CliOptions(std::string prog, FILE *f_in);
 };
 
 
@@ -53,8 +55,10 @@ class Cli {
     Tokenizer *m_tokenizer = nullptr;
 
     void handleSignal() const;
+    void greet() const;
+
 public:
-    Cli(const char *program_path, CliOptions options);
+    explicit Cli(CliOptions options);
     Cli(const Cli &) = delete;
     Cli &operator=(const Cli &) = delete;
     Cli(Cli &&) = delete;
