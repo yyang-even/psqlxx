@@ -49,7 +49,7 @@ void AddFormatOptions(cxxopts::Options &options) {
     ;
 }
 
-const FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_options) {
+FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_options) {
     FormatterOptions options{};
 
     options.out_file = parsed_options["out-file"].as<std::string>();

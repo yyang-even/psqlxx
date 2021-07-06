@@ -8,16 +8,16 @@ namespace psqlxx {
 namespace test {
 
 [[nodiscard]]
-const std::string GetDbHostParameter();
+std::string GetDbHostParameter();
 
 [[nodiscard]]
-const std::string GetSharedDbNameParameter();
+std::string GetSharedDbNameParameter();
 
 [[nodiscard]]
-const std::string GetViewerConnectionString();
+std::string GetViewerConnectionString();
 
 [[nodiscard]]
-const std::string GetAdminConnectionString();
+std::string GetAdminConnectionString();
 
 }//namespace test
 

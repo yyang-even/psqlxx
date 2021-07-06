@@ -55,7 +55,7 @@ namespace internal {
  * @note    password escaping and quoting are currently not supported.
  */
 [[nodiscard]]
-const std::string overridePassword(std::string connection_string, std::string password);
+std::string overridePassword(std::string connection_string, std::string password);
 
 [[nodiscard]]
 std::unique_ptr<pqxx::connection> makeConnection(const ConnectionOptions &options);
@@ -92,7 +92,7 @@ public:
 void AddDbProxyOptions(cxxopts::Options &options);
 
 [[nodiscard]]
-const DbProxyOptions HandleDbProxyOptions(const cxxopts::ParseResult &parsed_options);
+DbProxyOptions HandleDbProxyOptions(const cxxopts::ParseResult &parsed_options);
 
 enum class DbParameterKey {
     host,
@@ -103,14 +103,14 @@ enum class DbParameterKey {
 };
 
 [[nodiscard]]
-const std::string
+std::string
 ComposeDbParameter(const DbParameterKey key_enum, std::string value);
 
 [[nodiscard]]
 bool ListDbs(const DbProxy &db_proxy);
 
 [[nodiscard]]
-const CommandGroup
+CommandGroup
 CreatePsqlxxCommandGroup(const DbProxy &proxy);
 
 }//namespace psqlxx
