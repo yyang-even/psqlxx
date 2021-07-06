@@ -4,7 +4,7 @@
 
 namespace psqlxx {
 
-const cxxopts::Options CreateBaseOptions() {
+cxxopts::Options CreateBaseOptions() {
     cxxopts::Options options("psqlxx", "psql in C++.");
 
     options.add_options()
@@ -15,7 +15,7 @@ const cxxopts::Options CreateBaseOptions() {
     return options;
 }
 
-const std::optional<cxxopts::ParseResult>
+std::optional<cxxopts::ParseResult>
 ParseOptions(cxxopts::Options &options, int argc, char **argv) noexcept {
     try {
         return options.parse(argc, argv);

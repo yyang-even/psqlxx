@@ -10,7 +10,7 @@ using namespace psqlxx;
 namespace {
 
 [[nodiscard]]
-inline const auto buildConnectionStringFor(std::string user) {
+inline auto buildConnectionStringFor(std::string user) {
     return SpaceJoiner(test::GetDbHostParameter(),
                        test::GetSharedDbNameParameter(),
                        ComposeDbParameter(DbParameterKey::user, std::move(user)));
@@ -23,20 +23,20 @@ namespace psqlxx {
 
 namespace test {
 
-const std::string GetDbHostParameter() {
+std::string GetDbHostParameter() {
     return ComposeDbParameter(DbParameterKey::host, "@psqlxx_TEST_DB_HOST@");
 }
 
-const std::string GetSharedDbNameParameter() {
+std::string GetSharedDbNameParameter() {
     return ComposeDbParameter(DbParameterKey::dbname, "@psqlxx_SHARED_TEST_DB_NAME@");
 }
 
-const std::string GetViewerConnectionString() {
+std::string GetViewerConnectionString() {
     return SpaceJoiner(buildConnectionStringFor("@psqlxx_TEST_DB_READ_USER_NAME@"),
                        ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_READ_USER_PASSWORD@"));
 }
 
-const std::string GetAdminConnectionString() {
+std::string GetAdminConnectionString() {
     return SpaceJoiner(buildConnectionStringFor("@psqlxx_TEST_DB_ADMIN_USER_NAME@"),
                        ComposeDbParameter(DbParameterKey::password, "@psqlxx_TEST_DB_ADMIN_USER_PASSWORD@"));
 }
