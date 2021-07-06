@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include <pqxx/pqxx>
 
 #include <psqlxx/args.hpp>
@@ -5,6 +7,7 @@
 #include <psqlxx/db.hpp>
 
 
+namespace fs = std::filesystem;
 using namespace psqlxx;
 
 
@@ -82,7 +85,7 @@ int main(int argc, char **argv) {
 
     const auto command_file_ptr = OpenCommandFile(proxy_options.command_file);
 
-    Cli my_cli{argv[0], CliOptions{command_file_ptr.get()}};
+    Cli my_cli{CliOptions{fs::path(argv[0]).stem(), command_file_ptr.get()}};
     my_cli.Config();
     my_cli.RegisterCommandGroup(CreatePsqlxxCommandGroup(db_proxy));
 

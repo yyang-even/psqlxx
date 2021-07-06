@@ -8,6 +8,8 @@
 
 #include <histedit.h>
 
+#include <psqlxx/version.hpp>
+
 
 using namespace psqlxx;
 namespace fs = std::filesystem;
@@ -92,7 +94,8 @@ extern "C" void signalHandler(int sig) {
 
 namespace psqlxx {
 
-CliOptions::CliOptions(FILE *f_in): history_file(getDefaultHistoryFile()),
+CliOptions::CliOptions(std::string prog, FILE *f_in): prog_name(std::move(prog)),
+    history_file(getDefaultHistoryFile()),
     input_file(f_in ? f_in : stdin) {
 }
 
@@ -108,12 +111,12 @@ Press <Enter> to continue: )" << std::flush;
     m_signal_received = true;
 }
 
-Cli::Cli(const char *program_path, CliOptions options) : m_options(std::move(options)),
-    m_el(el_init(program_path, options.input_file, stdout, stderr)),
+Cli::Cli(CliOptions options) : m_options(std::move(options)),
     m_history(history_init()),
     m_ev(new HistEvent()),
     m_tokenizer(tok_init(nullptr)) {
-    // Keep this statement after other members have been constructed.
+    // Keep these statements after other members have been constructed.
+    m_el = el_init(m_options.prog_name.c_str(), options.input_file, stdout, stderr);
     m_command_groups.emplace_back(createBuiltinCommandGroup(m_command_groups, m_el));
 }
 
@@ -159,7 +162,14 @@ void Cli::Config() const {
     history(m_history, m_ev.get(), H_LOAD, m_options.history_file.c_str());
 }
 
+void Cli::greet() const {
+    std::cout << m_options.prog_name << " (" << GetVersion() << ")\n";
+    std::cout << "Type \"help\" for help.\n" << std::endl;
+}
+
 bool Cli::Run() const {
+    greet();
+
     const char *a_line = nullptr;
     int line_length = 0;
     bool previous_line_completed = true;
