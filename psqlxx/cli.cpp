@@ -8,6 +8,8 @@
 
 #include <histedit.h>
 
+#include <psqlxx/keyword.hpp>
+#include <psqlxx/string_utils.hpp>
 #include <psqlxx/version.hpp>
 
 
@@ -89,6 +91,15 @@ extern "C" void signalHandler(int sig) {
     }
 }
 
+std::function<int(EditLine *, const int)> g_complete_handler;
+
+extern "C" int completeHandler(EditLine *el, int ch) {
+    if (g_complete_handler) {
+        return g_complete_handler(el, ch);
+    }
+    return CC_ERROR;
+}
+
 }
 
 
@@ -129,14 +140,19 @@ Cli::~Cli() {
     el_end(m_el);
 
     g_signal_handler = {};
+    g_complete_handler = {};
 }
 
 void Cli::Config() const {
-    g_signal_handler = [this](int) {
+    g_signal_handler = [this](auto) {
         handleSignal();
     };
     (void) std::signal(SIGINT, signalHandler);  // Handle 'Ctrl+c'
     (void) std::signal(SIGQUIT, signalHandler); // Handle 'Ctrl+\'
+
+    g_complete_handler = [this](auto * el, const auto ch) {
+        return complete(el, ch);
+    };
 
     history(m_history, m_ev.get(), H_SETSIZE, m_options.history_size);
     history(m_history, m_ev.get(), H_SETUNIQUE, 1);
@@ -149,9 +165,9 @@ void Cli::Config() const {
 
     el_set(m_el, EL_PROMPT, prompt);
 
-    // el_set(m_el, EL_ADDFN, "ed-complete", "Complete argument", complete);
+    el_set(m_el, EL_ADDFN, "ed-complete", "Complete argument", completeHandler);
 
-    // el_set(m_el, EL_BIND, "^I", "ed-complete", NULL);
+    el_set(m_el, EL_BIND, "^I", "ed-complete", NULL);
     el_set(m_el, EL_BIND, "\b", "ed-delete-next-char", NULL);
     el_set(m_el, EL_BIND, "\033[A", "ed-prev-history", NULL);
     el_set(m_el, EL_BIND, "^r", "em-inc-search-prev", NULL);
@@ -160,6 +176,44 @@ void Cli::Config() const {
 
     el_source(m_el, m_options.editrc_file);
     history(m_history, m_ev.get(), H_LOAD, m_options.history_file.c_str());
+}
+
+int Cli::complete(EditLine *el, const int /*ch*/) const {
+    const auto *line_info = el_line(el);
+
+    const char *last_word = nullptr;
+    for (last_word = line_info->cursor - 1;
+         not std::isspace(*last_word) and last_word > line_info->buffer;
+         --last_word);
+    if (std::isspace(*last_word)) {
+        ++last_word;
+    }
+    const std::size_t last_word_length = line_info->cursor - last_word;
+    const std::string_view the_last_word{last_word, last_word_length};
+
+    std::string_view match;
+
+    for (const auto &a_group : m_command_groups) {
+        match = a_group.Search(the_last_word);
+        if (not match.empty()) {
+            break;
+        }
+    }
+
+    if (match.empty()) {
+        for (const auto key : KEYWORDS) {
+            if (StartsWith(key, the_last_word)) {
+                match = key;
+            }
+        }
+    }
+
+    if (match.size() < last_word_length or
+        el_insertstr(el, match.substr(last_word_length).data()) == -1) {
+        return CC_ERROR;
+    } else {
+        return CC_REFRESH;
+    }
 }
 
 void Cli::greet() const {

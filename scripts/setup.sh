@@ -6,12 +6,11 @@
 
 set -ex
 
-source ~/.bash_util.sh
-
 THIS_DIR=$(dirname "$0")
+source "$THIS_DIR/utils.sh"
 
 QuietRun pushd "$THIS_DIR"
-PROJECT_ROOT_DIR=$(git rev-parse --show-toplevel)
+PROJECT_ROOT_DIR=$(GetProjectRootDir)
 QuietRun popd
 
 QuietRun pushd "$PROJECT_ROOT_DIR"

@@ -25,7 +25,7 @@ namespace psqlxx {
 struct CliOptions {
     std::string prog_name;
 
-    std::string editor = "vi";
+    std::string editor = "emacs";
 
     std::string history_file;
 
@@ -54,6 +54,8 @@ class Cli {
 
     Tokenizer *m_tokenizer = nullptr;
 
+    [[nodiscard]]
+    int complete(EditLine *el, const int ch) const;
     void handleSignal() const;
     void greet() const;
 
