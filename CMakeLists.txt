@@ -79,6 +79,7 @@ add_subdirectory(psqlxx)
 
 if (psqlxx_WANT_TESTS)
     add_subdirectory(tests)
+    add_subdirectory(scripts)
 endif ()
 
 # ######################################################################################
