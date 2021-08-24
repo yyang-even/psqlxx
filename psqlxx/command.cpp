@@ -7,6 +7,7 @@
 #include <regex>
 
 #include <psqlxx/exception.hpp>
+#include <psqlxx/string_utils.hpp>
 
 
 using namespace std::string_literals;
@@ -170,6 +171,16 @@ CommandResult CommandGroup::operator()(const char **words, const int word_count)
     }
 
     return CommandResult::unknown;
+}
+
+std::string_view CommandGroup::Search(const std::string_view prefix) const {
+    for (const auto [name, _] : m_name_command_map) {
+        if (StartsWith(name, prefix)) {
+            return name;
+        }
+    }
+
+    return {};
 }
 
 
