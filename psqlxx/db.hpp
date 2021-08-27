@@ -64,12 +64,18 @@ std::unique_ptr<pqxx::connection> makeConnection(const ConnectionOptions &option
 
 
 class DbProxy {
-    DbProxyOptions m_options;
+    using ResultHandler = std::function<void(const pqxx::result &)>;
 
-    std::unique_ptr<pqxx::connection> m_connection;
+    DbProxyOptions m_options;
 
     std::ofstream m_out_file;
     mutable std::ostream m_out;
+
+    TypeMap m_pg_type_map;
+
+    std::unique_ptr<pqxx::connection> m_connection;
+
+    void initTypeMap();
 
 public:
     explicit DbProxy(DbProxyOptions options);
@@ -84,9 +90,12 @@ public:
         return m_options;
     }
 
+    void PrintResult(const pqxx::result &a_result,
+                     const std::string_view title = {}) const;
+
     [[nodiscard]]
     bool DoTransaction(const std::string_view sql_cmd,
-                       const std::string_view title = {}) const;
+                       const ResultHandler handler = {}) const;
 };
 
 void AddDbProxyOptions(cxxopts::Options &options);
