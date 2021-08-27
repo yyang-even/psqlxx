@@ -102,7 +102,7 @@ public:
     [[nodiscard]]
     CommandResult operator()(const char **words, const int word_count) const;
     [[nodiscard]]
-    std::string_view Search(const std::string_view prefix) const;
+    std::string_view PrefixSearch(const std::string_view prefix) const;
 };
 
 
