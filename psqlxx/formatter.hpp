@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <unordered_map>
 
 
 namespace cxxopts {
@@ -19,6 +20,8 @@ class result;
 
 namespace psqlxx {
 
+using TypeMap = std::unordered_map<int, std::string>;
+
 struct FormatterOptions {
     std::string out_file;
 
@@ -26,6 +29,7 @@ struct FormatterOptions {
     std::string special_chars;
 
     bool show_title_and_summary = true;
+    bool no_align = false;
 };
 
 void AddFormatOptions(cxxopts::Options &options);
@@ -35,6 +39,7 @@ FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_options)
 
 
 void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
-                 std::ostream &out, const std::string_view title);
+                 const TypeMap &type_map, std::ostream &out,
+                 const std::string_view title);
 
 }//namespace psqlxx

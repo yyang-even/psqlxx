@@ -6,6 +6,11 @@
 
 namespace {
 
+struct ColumnInfo {
+    std::size_t width = 0;
+    bool is_numeric = false;
+};
+
 inline auto &printSummary(std::ostream &out, const std::size_t size) {
     out << "(" << size << " row";
     if (size > 1) {
@@ -14,19 +19,92 @@ inline auto &printSummary(std::ostream &out, const std::size_t size) {
     return out << ")";
 }
 
-inline auto &printField(std::ostream &out, const pqxx::field &a_field,
-                        const std::string_view special_chars) {
+auto &printStrInCenter(std::ostream &out, const std::string_view a_field,
+                       const int width) {
+    const int padding = width - a_field.size();
+    const auto half_spaces = std::string(padding > 1 ? padding / 2 : 0, ' ');
+    out << half_spaces << a_field << half_spaces;
+    if (padding > 0 and padding % 2 != 0) {
+        out << ' ';
+    }
+
+    return out;
+}
+
+void printHeaders(std::ostream &out, const pqxx::result &a_result,
+                  const std::vector<ColumnInfo> &column_infos, const std::string_view delimiter) {
+    for (std::size_t i = 0; i < column_infos.size() - 1; ++i) {
+        printStrInCenter(out, a_result.column_name(i),
+                         column_infos[i].width) << delimiter;
+    }
+    printStrInCenter(out, a_result.column_name(a_result.columns() - 1),
+                     column_infos.back().width) << '\n';
+}
+
+auto &printField(std::ostream &out, const std::string_view a_field,
+                 const std::string_view special_chars, const ColumnInfo &column_info) {
     const auto do_quote = (not special_chars.empty()) and
-                          (a_field.view().find_first_of(special_chars) != std::string_view::npos);
+                          (a_field.find_first_of(special_chars) != std::string_view::npos);
     if (do_quote) {
         out << '"';
     }
-    out << a_field;
+    printStrInCenter(out, a_field, column_info.width);
     if (do_quote) {
         out << '"';
     }
 
     return out;
+}
+
+inline auto &printFieldBar(std::ostream &out, const int width) {
+    std::string bar(width, '-');
+    return out << bar;
+}
+
+[[nodiscard]]
+auto isNumeric(const psqlxx::TypeMap &type_map, const pqxx::oid oid) {
+    static const std::unordered_set<std::string_view> numeric_type_names {
+        "int8", "int2", "int4", "oid", "tid", "xid", "cid", "float4", "float4"
+    };
+
+    const auto type_iter = type_map.find(oid);
+    if (type_iter != type_map.cend()) {
+        return numeric_type_names.find(type_iter->second) != numeric_type_names.cend();
+    }
+
+    return false;
+}
+
+[[nodiscard]]
+auto getColumnInfos(const pqxx::result &a_result, const psqlxx::TypeMap &type_map,
+                    const bool no_align) {
+    std::vector<ColumnInfo> column_infos(a_result.columns());
+
+    for (std::size_t i = 0; i < column_infos.size(); ++i) {
+        column_infos[i].is_numeric = isNumeric(type_map, a_result.column_type(i));
+    }
+
+    if (no_align) {
+        return column_infos;
+    }
+
+    for (std::size_t i = 0; i < column_infos.size(); ++i) {
+        column_infos[i].width = std::strlen(a_result.column_name(i));
+    }
+
+    for (const auto &row : a_result) {
+        if (not row.empty()) {
+            for (std::size_t i = 0; i < column_infos.size(); ++i) {
+                column_infos[i].width = std::max(column_infos[i].width, row[i].view().size());
+            }
+        }
+    }
+
+    for (auto &info : column_infos) {
+        info.width += 2;
+    }
+
+    return column_infos;
 }
 
 }
@@ -37,7 +115,7 @@ namespace psqlxx {
 void AddFormatOptions(cxxopts::Options &options) {
     options.add_options("Formatter")
     ("A,no-align", "unaligned table output mode",
-     cxxopts::value<bool>()->default_value("true"))
+     cxxopts::value<bool>()->default_value("false"))
     ("csv", "CSV (Comma-Separated Values) table output mode",
      cxxopts::value<bool>()->default_value("false"))
 
@@ -58,31 +136,41 @@ FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_options)
         options.delimiter = ",";
         options.special_chars = options.delimiter + "\n\r";
         options.show_title_and_summary = false;
+        options.no_align = true;
     } else {
         options.delimiter = parsed_options["field-separator"].as<std::string>();
+        options.no_align = parsed_options["no-align"].as<bool>();
     }
 
     return options;
 }
 
 void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
-                 std::ostream &out, const std::string_view title) {
+                 const TypeMap &type_map, std::ostream &out, const std::string_view title) {
     if (a_result.columns() > 0) {
         if (options.show_title_and_summary and (not title.empty())) {
             out << title << std::endl;
         }
 
-        for (decltype(a_result.columns()) i = 0; i < a_result.columns() - 1; ++i) {
-            out << a_result.column_name(i) << options.delimiter;
+        const auto column_infos = getColumnInfos(a_result, type_map, options.no_align);
+
+        printHeaders(out, a_result, column_infos, options.delimiter);
+
+        if (not options.no_align) {
+            for (std::size_t i = 0; i < column_infos.size() - 1; ++i) {
+                printFieldBar(out, column_infos[i].width) << '+';
+            }
+            printFieldBar(out, column_infos.back().width) << '\n';
         }
-        out << a_result.column_name(a_result.columns() - 1) << std::endl;
 
         for (const auto &row : a_result) {
             if (not row.empty()) {
-                for (auto iter = row.cbegin(); iter != std::prev(row.cend()); ++iter) {
-                    printField(out, *iter, options.special_chars) << options.delimiter;
+                for (std::size_t i = 0; i < column_infos.size() - 1; ++i) {
+                    printField(out, row[i].view(), options.special_chars,
+                               column_infos[i]) << options.delimiter;
                 }
-                printField(out, row.back(), options.special_chars) << std::endl;
+                printField(out, row.back().view(), options.special_chars,
+                           column_infos.back()) << '\n';
             }
         }
 

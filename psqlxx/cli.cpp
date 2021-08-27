@@ -194,7 +194,7 @@ int Cli::complete(EditLine *const el, const int /*ch*/) const {
     std::string_view match;
 
     for (const auto &a_group : m_command_groups) {
-        match = a_group.Search(the_last_word);
+        match = a_group.PrefixSearch(the_last_word);
         if (not match.empty()) {
             break;
         }

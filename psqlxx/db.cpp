@@ -144,19 +144,45 @@ DbProxy::DbProxy(DbProxyOptions options): m_options(std::move(options)),
                       "': " << strerror(errno) << std::endl;
         }
     }
+
+    initTypeMap();
+}
+
+void DbProxy::initTypeMap() {
+    if (m_connection) {
+        if (DoTransaction("select typname, oid from pg_type;",
+                    [this](const pqxx::result &a_result) {
+            for (const auto &row : a_result) {
+                if (not row.empty()) {
+                    const auto [type_name, oid] = row.as<std::string, int>();
+                    m_pg_type_map[oid] = std::move(type_name);
+                }
+            }
+        })) {
+            std::cerr << "Failed to query pg_type from DB." << std::endl;
+        }
+    }
+}
+
+void
+DbProxy::PrintResult(const pqxx::result &a_result, const std::string_view title) const {
+    psqlxx::PrintResult(a_result, m_options.format_options, m_pg_type_map, m_out, title);
 }
 
 bool DbProxy::DoTransaction(const std::string_view sql_cmd,
-        const std::string_view title) const {
+        const ResultHandler handler) const {
     assert(*this);
 
-    return pqxx::perform([this, sql_cmd, title] {
+    return pqxx::perform([this, sql_cmd, handler] {
         try {
-            pqxx::work w(*(m_connection), getTransactionName());
+            pqxx::work a_work(*(m_connection), getTransactionName());
+            const auto a_result = a_work.exec(sql_cmd);
 
-            auto r = w.exec(sql_cmd);
-
-            PrintResult(r, m_options.format_options, m_out, title);
+            if (handler) {
+                handler(a_result);
+            } else {
+                PrintResult(a_result);
+            }
             return true;
 
         } catch (const std::exception &e) {
@@ -211,7 +237,9 @@ ComposeDbParameter(const DbParameterKey key_enum, std::string value) {
 
 bool ListDbs(const DbProxy &db_proxy) {
     const auto list_dbs_sql = buildListDBsSql();
-    return db_proxy.DoTransaction(list_dbs_sql, "List of databases");
+    return db_proxy.DoTransaction(list_dbs_sql, [&db_proxy](const auto &a_result) {
+            db_proxy.PrintResult(a_result, "List of databases");
+            });
 }
 
 CommandGroup
