@@ -26,6 +26,7 @@ struct FormatterOptions {
     std::string special_chars;
 
     bool show_title_and_summary = true;
+    bool no_align = false;
 };
 
 void AddFormatOptions(cxxopts::Options &options);
