@@ -173,7 +173,7 @@ CommandResult CommandGroup::operator()(const char **words, const int word_count)
     return CommandResult::unknown;
 }
 
-std::string_view CommandGroup::Search(const std::string_view prefix) const {
+std::string_view CommandGroup::PrefixSearch(const std::string_view prefix) const {
     for (const auto [name, _] : m_name_command_map) {
         if (StartsWith(name, prefix)) {
             return name;
