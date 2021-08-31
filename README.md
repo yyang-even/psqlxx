@@ -3,5 +3,5 @@
 # psqlxx
 [psql](http://postgresguide.com/utilities/psql.html) in C++.
 
-# Demos
-See [Demos](docs/demos/demos.md)
+## Demos
+See [Demos](doc/demos/demos.md)
