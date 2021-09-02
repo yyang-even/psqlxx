@@ -72,7 +72,6 @@ public:
     void Config() const;
     [[nodiscard]]
     bool Run() const;
-    void RegisterCommandGroup(CommandGroup group);
 };
 
 }//namespace psqlxx
