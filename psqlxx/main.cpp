@@ -87,7 +87,6 @@ int main(int argc, char **argv) {
 
     Cli my_cli({fs::path(argv[0]).stem(), command_file_ptr.get()}, db_proxy);
     my_cli.Config();
-    my_cli.RegisterCommandGroup(CreatePsqlxxCommandGroup(db_proxy));
 
     return toExitCode(my_cli.Run());
 }

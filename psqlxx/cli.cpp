@@ -135,7 +135,8 @@ Cli::Cli(CliOptions options, const DbProxy &proxy):
     m_tokenizer(tok_init(nullptr)) {
     // Keep these statements after other members have been constructed.
     m_el = el_init(m_options.prog_name.c_str(), m_options.input_file, stdout, stderr);
-    m_command_groups.emplace_back(createBuiltinCommandGroup(m_command_groups, m_el));
+    m_command_groups.push_back(createBuiltinCommandGroup(m_command_groups, m_el));
+    m_command_groups.push_back(CreatePsqlxxCommandGroup(proxy));
 
     g_prompt_handler = [&proxy](auto *) {
         static std::string buffer;
@@ -290,10 +291,6 @@ bool Cli::Run() const {
     }
 
     return last_result;
-}
-
-void Cli::RegisterCommandGroup(CommandGroup group) {
-    m_command_groups.push_back(std::move(group));
 }
 
 }//namespace psqlxx
