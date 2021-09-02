@@ -1,6 +1,5 @@
 * Add more command-line options, such as echo-queries.
 * Better build-in command argument size checking.
-* Better CLI prompt.
 * Add more build-in commands, such as re-connect.
 * psql variables?
 * Implement transaction.

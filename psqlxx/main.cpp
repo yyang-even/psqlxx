@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 
     const auto command_file_ptr = OpenCommandFile(proxy_options.command_file);
 
-    Cli my_cli{CliOptions{fs::path(argv[0]).stem(), command_file_ptr.get()}};
+    Cli my_cli({fs::path(argv[0]).stem(), command_file_ptr.get()}, db_proxy);
     my_cli.Config();
     my_cli.RegisterCommandGroup(CreatePsqlxxCommandGroup(db_proxy));
 
