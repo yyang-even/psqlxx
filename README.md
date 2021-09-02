@@ -4,4 +4,4 @@
 [psql](http://postgresguide.com/utilities/psql.html) in C++.
 
 ## Demos
-See [Demos](doc/demos/demos.md)
+See [demos](doc/demos/demos.md)

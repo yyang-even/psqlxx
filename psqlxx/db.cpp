@@ -132,7 +132,8 @@ std::unique_ptr<pqxx::connection> makeConnection(const ConnectionOptions &option
 
 DbProxy::DbProxy(DbProxyOptions options): m_options(std::move(options)),
     m_out(std::cout.rdbuf()){
-    m_connection = internal::makeConnection(m_options.connection_options);
+
+    connect();
 
     if (not m_options.format_options.out_file.empty()) {
         m_out_file.open(m_options.format_options.out_file, std::ofstream::out);
@@ -144,23 +145,38 @@ DbProxy::DbProxy(DbProxyOptions options): m_options(std::move(options)),
                       "': " << strerror(errno) << std::endl;
         }
     }
+}
 
-    initTypeMap();
+void DbProxy::connect() {
+    m_connection = internal::makeConnection(m_options.connection_options);
+    if (m_connection) {
+        queryDbName();
+        initTypeMap();
+    }
+}
+
+void DbProxy::queryDbName() {
+    if (not DoTransaction("SELECT current_database();",
+                [this](const pqxx::result &a_result) {
+        if (not a_result.empty() and not a_result.front().empty()) {
+            m_db_name = a_result.front().front().as<std::string>();
+        }
+    })) {
+        std::cerr << "Failed to query DB name." << std::endl;
+    }
 }
 
 void DbProxy::initTypeMap() {
-    if (m_connection) {
-        if (not DoTransaction("select typname, oid from pg_type;",
-                    [this](const pqxx::result &a_result) {
-            for (const auto &row : a_result) {
-                if (not row.empty()) {
-                    const auto [type_name, oid] = row.as<std::string, int>();
-                    m_pg_type_map[oid] = std::move(type_name);
-                }
+    if (not DoTransaction("select typname, oid from pg_type;",
+                [this](const pqxx::result &a_result) {
+        for (const auto &row : a_result) {
+            if (not row.empty()) {
+                auto [type_name, oid] = row.as<std::string, int>();
+                m_pg_type_map[oid] = std::move(type_name);
             }
-        })) {
-            std::cerr << "Failed to query pg_type from DB." << std::endl;
         }
+    })) {
+        std::cerr << "Failed to query pg_type from DB." << std::endl;
     }
 }
 

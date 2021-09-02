@@ -8,6 +8,7 @@
 
 #include <histedit.h>
 
+#include <psqlxx/db.hpp>
 #include <psqlxx/keyword.hpp>
 #include <psqlxx/string_utils.hpp>
 #include <psqlxx/version.hpp>
@@ -17,12 +18,6 @@ using namespace psqlxx;
 namespace fs = std::filesystem;
 
 namespace {
-
-[[nodiscard]]
-inline const char *prompt(const std::string &/*user_name = "postgres"*/) {
-    // return (user_name + " > ").c_str();
-    return "postgres> ";
-}
 
 [[nodiscard]]
 inline std::string getDefaultHistoryFile() {
@@ -100,12 +95,23 @@ extern "C" int completeHandler(EditLine *el, int ch) {
     return CC_ERROR;
 }
 
+std::function<const char *(EditLine *const)> g_prompt_handler;
+
+extern "C" const char *promptHandler(EditLine *el) {
+    if (g_prompt_handler) {
+        return g_prompt_handler(el);
+    }
+    return "psqlxx=# ";
+}
+
 }
 
 
 namespace psqlxx {
 
-CliOptions::CliOptions(std::string prog, FILE *f_in): prog_name(std::move(prog)),
+CliOptions::CliOptions(std::string prog,
+                       FILE *const f_in):
+    prog_name(std::move(prog)),
     history_file(getDefaultHistoryFile()),
     input_file(f_in ? f_in : stdin) {
 }
@@ -122,13 +128,20 @@ Press <Enter> to continue: )" << std::flush;
     m_signal_received = true;
 }
 
-Cli::Cli(CliOptions options) : m_options(std::move(options)),
+Cli::Cli(CliOptions options, const DbProxy &proxy):
+    m_options(std::move(options)),
     m_history(history_init()),
     m_ev(new HistEvent()),
     m_tokenizer(tok_init(nullptr)) {
     // Keep these statements after other members have been constructed.
     m_el = el_init(m_options.prog_name.c_str(), m_options.input_file, stdout, stderr);
     m_command_groups.emplace_back(createBuiltinCommandGroup(m_command_groups, m_el));
+
+    g_prompt_handler = [&proxy](auto *) {
+        static std::string buffer;
+        buffer = proxy.GetDbName() + "=# ";
+        return buffer.c_str();
+    };
 }
 
 Cli::~Cli() {
@@ -141,6 +154,7 @@ Cli::~Cli() {
 
     g_signal_handler = {};
     g_complete_handler = {};
+    g_prompt_handler = {};
 }
 
 void Cli::Config() const {
@@ -163,7 +177,7 @@ void Cli::Config() const {
 
     el_set(m_el, EL_SIGNAL, 1);
 
-    el_set(m_el, EL_PROMPT, prompt);
+    el_set(m_el, EL_PROMPT, promptHandler);
 
     el_set(m_el, EL_ADDFN, "ed-complete", "Complete argument", completeHandler);
 

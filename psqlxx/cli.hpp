@@ -22,6 +22,9 @@ typedef tokenizer Tokenizer;
 
 namespace psqlxx {
 
+class DbProxy;
+
+
 struct CliOptions {
     std::string prog_name;
 
@@ -36,7 +39,7 @@ struct CliOptions {
     int history_size = 10000;
 
 
-    CliOptions(std::string prog, FILE *f_in);
+    CliOptions(std::string prog, FILE *const f_in);
 };
 
 
@@ -60,7 +63,7 @@ class Cli {
     void greet() const;
 
 public:
-    explicit Cli(CliOptions options);
+    Cli(CliOptions options, const DbProxy &proxy);
     Cli(const Cli &) = delete;
     Cli &operator=(const Cli &) = delete;
     Cli(Cli &&) = delete;
