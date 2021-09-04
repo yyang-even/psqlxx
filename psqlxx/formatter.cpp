@@ -176,11 +176,15 @@ FormatterOptions HandleFormatOptions(const cxxopts::ParseResult &parsed_options)
 void PrintResult(const pqxx::result &a_result, const FormatterOptions &options,
                  const TypeMap &type_map, std::ostream &out, const std::string_view title) {
     if (a_result.columns() > 0) {
-        if (options.show_title_and_summary and (not title.empty())) {
-            out << title << std::endl;
-        }
-
         const auto column_infos = getColumnInfos(a_result, type_map, options.no_align);
+
+        if (options.show_title_and_summary and (not title.empty())) {
+            const auto total_width = std::accumulate(column_infos.cbegin(), column_infos.cend(), 0,
+            [](const auto init, const auto & info) {
+                return init + info.width;
+            });
+            printStrInCenter(out, title, total_width) << '\n';
+        }
 
         printHeaders(out, a_result, column_infos, options.delimiter);
 
