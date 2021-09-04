@@ -10,3 +10,18 @@
 
 ### Connect with Password
 ![Connect with Password](connect_with_password.gif?raw=true "Connect with Password")
+
+### Connect with Plain Password
+![Connect with Plain Password](connect_with_plain_password.gif?raw=true "Connect with Plain Password")
+
+## Command Mode
+![Command Mode](command_mode.gif?raw=true "Command Mode")
+
+## Command File Mode
+![Command File Mode](command_file_mode.gif?raw=true "Command File Mode")
+
+## CSV Output Mode
+![CSV Output Mode](csv_output_mode.gif?raw=true "CSV Output Mode")
+
+## Output to File
+![Output to File](output_to_file.gif?raw=true "Output to File")
