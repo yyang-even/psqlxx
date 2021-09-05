@@ -72,12 +72,10 @@ class DbProxy {
     mutable std::ostream m_out;
 
     TypeMap m_pg_type_map;
-    std::string m_db_name;
     std::unique_ptr<pqxx::connection> m_connection;
 
     void connect();
     void initTypeMap();
-    void queryDbName();
 
 public:
     explicit DbProxy(DbProxyOptions options);
@@ -93,9 +91,7 @@ public:
     }
 
     [[nodiscard]]
-    const auto &GetDbName() const {
-        return m_db_name;
-    }
+    std::string GetDbName() const;
 
     void PrintResult(const pqxx::result &a_result,
                      const std::string_view title = {}) const;

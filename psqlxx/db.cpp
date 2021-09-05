@@ -150,20 +150,14 @@ DbProxy::DbProxy(DbProxyOptions options): m_options(std::move(options)),
 void DbProxy::connect() {
     m_connection = internal::makeConnection(m_options.connection_options);
     if (m_connection) {
-        queryDbName();
         initTypeMap();
     }
 }
 
-void DbProxy::queryDbName() {
-    if (not DoTransaction("SELECT current_database();",
-                [this](const pqxx::result &a_result) {
-        if (not a_result.empty() and not a_result.front().empty()) {
-            m_db_name = a_result.front().front().as<std::string>();
-        }
-    })) {
-        std::cerr << "Failed to query DB name." << std::endl;
-    }
+std::string DbProxy::GetDbName() const {
+    if (m_connection)
+        return m_connection->dbname();
+    return "";
 }
 
 void DbProxy::initTypeMap() {

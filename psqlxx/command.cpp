@@ -154,7 +154,7 @@ void CommandGroup::Help() const {
 }
 
 void CommandGroup::Describe() const {
-    std::cout << m_name << ":\t" << m_description << std::endl;
+    std::cout << '\t' << m_name << " :\t" << m_description << std::endl;
 }
 
 CommandResult CommandGroup::operator()(const char **words, const int word_count) const {
@@ -187,6 +187,9 @@ std::string_view CommandGroup::PrefixSearch(const std::string_view prefix) const
 CommandResult HelpGroups(const std::vector<CommandGroup> &groups,
                          const std::string_view name) {
     if (name.empty()) {
+        const auto USAGE =
+            "You are using psqlxx, yet another command-line interface to PostgreSQL.";
+        std::cout << USAGE << '\n' << "Groups:\n";
         for (const auto &one_group : groups) {
             one_group.Describe();
         }
