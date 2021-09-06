@@ -38,7 +38,7 @@ public:
     Command(const Command &) = delete;
     Command(Command &&) = delete;
 
-    void Help() const;
+    const DescriptionType Description() const;
     [[nodiscard]]
     CommandResult operator()(const char **words, const int word_count) const;
 
