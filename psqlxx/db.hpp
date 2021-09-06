@@ -93,6 +93,9 @@ public:
     [[nodiscard]]
     std::string GetDbName() const;
 
+    [[nodiscard]]
+    bool PrintConnectionInfo() const;
+
     void PrintResult(const pqxx::result &a_result,
                      const std::string_view title = {}) const;
 
