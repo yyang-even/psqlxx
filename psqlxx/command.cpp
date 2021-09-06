@@ -88,8 +88,8 @@ Command::Command(NameArrayType n,
     }
 }
 
-void Command::Help() const {
-    // std::cout << names << '\t' << m_arguments << '\t' << m_description << std::endl;
+const Command::DescriptionType Command::Description() const {
+    return m_description;
 }
 
 CommandResult Command::operator()(const char **words, const int word_count) const {
@@ -148,13 +148,19 @@ void CommandGroup::AddOneOption(Command::NameArrayType names,
 }
 
 void CommandGroup::Help() const {
-    for (const auto command : m_commands) {
-        command->Help();
+    std::cout << Name() << ":\n";
+    for (const auto [name, command] : m_name_command_map) {
+        std::cout << "  " << name << '\t';
+        if (name.size() < 6) {
+            std::cout << '\t';
+        }
+        std::cout << command->Description() << '\n';
     }
+    std::cout << std::endl;
 }
 
 void CommandGroup::Describe() const {
-    std::cout << '\t' << m_name << " :\t" << m_description << std::endl;
+    std::cout << "  " << m_name << ":\t" << m_description << std::endl;
 }
 
 CommandResult CommandGroup::operator()(const char **words, const int word_count) const {
