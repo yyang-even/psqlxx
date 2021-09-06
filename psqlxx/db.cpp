@@ -154,6 +154,17 @@ void DbProxy::connect() {
     }
 }
 
+bool DbProxy::PrintConnectionInfo() const {
+    if (not m_connection)
+        return false;
+
+    m_out << "You are connected to database \"" << m_connection->dbname() <<
+    "\" as user \"" << m_connection->username() <<
+    "\" at port \"" << m_connection->port() << "\"." << std::endl;
+
+    return true;
+}
+
 std::string DbProxy::GetDbName() const {
     if (m_connection)
         return m_connection->dbname();
@@ -248,8 +259,8 @@ ComposeDbParameter(const DbParameterKey key_enum, std::string value) {
 bool ListDbs(const DbProxy &db_proxy) {
     const auto list_dbs_sql = buildListDBsSql();
     return db_proxy.DoTransaction(list_dbs_sql, [&db_proxy](const auto &a_result) {
-            db_proxy.PrintResult(a_result, "List of databases");
-            });
+        db_proxy.PrintResult(a_result, "List of databases");
+    });
 }
 
 CommandGroup
@@ -264,6 +275,9 @@ CreatePsqlxxCommandGroup(const DbProxy &proxy) {
     ({"@l"}, {}, [&proxy](const auto, const auto) {
         return ToCommandResult(ListDbs(proxy));
     }, "List databases")
+    ({"@conninfo"}, {}, [&proxy](const auto, const auto) {
+        return ToCommandResult(proxy.PrintConnectionInfo());
+    }, "Display information about current connection")
     ;
 
     return group;
