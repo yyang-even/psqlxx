@@ -25,3 +25,13 @@
 
 ## Output to File
 ![Output to File](output_to_file.gif?raw=true "Output to File")
+
+## History
+![History](history.gif?raw=true "History")
+
+## Psqlxx Commands
+### Help Command
+![Help Command](psqlxx_help_command.gif?raw=true "Help Command")
+
+### dn Command
+![dn Command](psqlxx_dn_command.gif?raw=true "dn Command")
