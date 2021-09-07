@@ -22,7 +22,7 @@ namespace {
 [[nodiscard]]
 inline std::string getDefaultHistoryFile() {
     fs::path home_dir(getenv("HOME"));
-    return (home_dir / ".postgres-client.hist").string();
+    return (home_dir / ".psqlxx.hist").string();
 }
 
 [[nodiscard]]
