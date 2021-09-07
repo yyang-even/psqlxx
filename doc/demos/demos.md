@@ -29,9 +29,19 @@
 ## History
 ![History](history.gif?raw=true "History")
 
+### Scroll History
+![Scroll History](scroll_history.gif?raw=true "Scroll History")
+
 ## Psqlxx Commands
 ### Help Command
 ![Help Command](psqlxx_help_command.gif?raw=true "Help Command")
 
 ### dn Command
 ![dn Command](psqlxx_dn_command.gif?raw=true "dn Command")
+
+## Auto-complete
+### Auto-complete Psqlxx Commands
+![Auto-complete Psqlxx Commands](autocomplete_psqlxx_commands.gif?raw=true "Auto-complete Psqlxx Commands")
+
+### Auto-complete SQL Commands
+![Auto-complete SQL Commands](autocomplete_sql_commands.gif?raw=true "Auto-complete SQL Commands")
