@@ -4,3 +4,5 @@
 * psql variables?
 * Implement transaction.
 * Implement pager.
+* Implement SQL help.
+* Better logging.
