@@ -59,6 +59,51 @@ ORDER BY 1;
 )";
 }
 
+[[nodiscard]]
+inline std::string_view buildListSchemasSql() {
+    return R"(
+SELECT n.nspname AS "Name",
+  pg_catalog.pg_get_userbyid(n.nspowner) AS "Owner"
+FROM pg_catalog.pg_namespace n
+WHERE n.nspname !~ '^pg_' AND n.nspname <> 'information_schema'
+ORDER BY 1;
+)";
+}
+
+[[nodiscard]]
+bool listSchemas(const DbProxy &db_proxy) {
+    const auto list_schemas_sql = buildListSchemasSql();
+    return db_proxy.DoTransaction(list_schemas_sql, [&db_proxy](const auto &a_result) {
+        db_proxy.PrintResult(a_result, "List of schemas");
+    });
+}
+
+[[nodiscard]]
+inline std::string_view buildListRolesSql() {
+    return R"(
+SELECT r.rolname, r.rolsuper, r.rolinherit,
+  r.rolcreaterole, r.rolcreatedb, r.rolcanlogin,
+  r.rolconnlimit, r.rolvaliduntil,
+  ARRAY(SELECT b.rolname
+        FROM pg_catalog.pg_auth_members m
+        JOIN pg_catalog.pg_roles b ON (m.roleid = b.oid)
+        WHERE m.member = r.oid) as memberof,
+  r.rolreplication,
+  r.rolbypassrls
+FROM pg_catalog.pg_roles r
+WHERE r.rolname !~ '^pg_'
+ORDER BY 1;
+)";
+}
+
+[[nodiscard]]
+bool listRoles(const DbProxy &db_proxy) {
+    const auto list_roles_sql = buildListRolesSql();
+    return db_proxy.DoTransaction(list_roles_sql, [&db_proxy](const auto &a_result) {
+        db_proxy.PrintResult(a_result, "List of roles");
+    });
+}
+
 void addConnectionOptions(cxxopts::Options &options) {
     options.add_options("DB Connection")
     ("S,connection-string",
@@ -275,6 +320,12 @@ CreatePsqlxxCommandGroup(const DbProxy &proxy) {
     ({"@l"}, {}, [&proxy](const auto, const auto) {
         return ToCommandResult(ListDbs(proxy));
     }, "List databases")
+    ({"@du"}, {}, [&proxy](const auto, const auto) {
+        return ToCommandResult(listRoles(proxy));
+    }, "List roles")
+    ({"@dn"}, {}, [&proxy](const auto, const auto) {
+        return ToCommandResult(listSchemas(proxy));
+    }, "List schemas")
     ({"@conninfo"}, {}, [&proxy](const auto, const auto) {
         return ToCommandResult(proxy.PrintConnectionInfo());
     }, "Display information about current connection")
