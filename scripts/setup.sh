@@ -27,5 +27,5 @@ ctest --build-and-test . build \
     -DBUILD_SHARED_LIBS:BOOL=ON \
     --test-command ctest -j 2
 
-../yyLinuxConfig/scripts/setup_ctags_for.sh
+../config-sh/scripts/setup_ctags_for.sh
 QuietRun popd
