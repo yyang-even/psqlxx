@@ -11,6 +11,9 @@ add_test(NAME psqlxx.real_db.cleanup
          COMMAND ${BASH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/test_db_cleanup.sh)
 set_tests_properties(psqlxx.real_db.cleanup PROPERTIES FIXTURES_CLEANUP RealDbTests)
 
-add_test(NAME psqlxx.real_db.psql_diff
-         COMMAND Python3::Interpreter ${CMAKE_CURRENT_SOURCE_DIR}/test_psql_diff.py)
-set_tests_properties(psqlxx.real_db.psql_diff PROPERTIES FIXTURES_REQUIRED RealDbTests)
+if (Python3_FOUND)
+    add_test(NAME psqlxx.real_db.psql_diff
+             COMMAND Python3::Interpreter ${CMAKE_CURRENT_SOURCE_DIR}/test_psql_diff.py)
+    set_tests_properties(psqlxx.real_db.psql_diff PROPERTIES FIXTURES_REQUIRED
+                                                             RealDbTests)
+endif ()
